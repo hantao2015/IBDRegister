@@ -94,4 +94,13 @@ http.createApi("login", {
   method: "post",
   url: "/api/Account/Login"
 });
+
+/**
+ *上传图片
+ */
+http.createApi("putOneImageObject", {
+  method: "post",
+  url: "/api/AliyunOss/PutOneImageObject"
+});
+
 export default http;

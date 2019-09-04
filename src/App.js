@@ -10,11 +10,13 @@ import Register from './components/busniess/Register'
 function App() {
   return (
     <div className="App">
+      {/* <Home></Home> */}
       <Router>
         <Route exact path='/' component={Login}></Route>
         <Route  path='/login' component={Login}></Route>
         <Route  path='/register' component={Register}></Route>
         <Route  path='/home' component={Home}></Route>
+        <Route  path='/menuCommittee' component={Home}></Route>
         
       </Router>
     </div>

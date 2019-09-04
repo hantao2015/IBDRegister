@@ -5,14 +5,22 @@ import logo from "../../../assets/images/1556898894199.jpg";
 import NoticeList from "../NoticeList";
 import ApplyDataBase from "../ApplyDataBase";
 import ApplyProject from "../ApplyProject";
+import ActApply from "../ActApply";
+import MenuDataBase from "../MenuDataBase/MenuDataBase";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import MenuCommittee from "../MenuCommittee";
 const { TabPane } = Tabs;
 
 class Home extends Component {
   state = {
     collapsed: false,
     imageUrl: "",
-    userInfo: {}
+    userInfo: {},
+    currentItem:1
   };
+  constructor(props){
+    super(props);
+  }
   toggleCollapsed = () => {
     this.setState({
       collapsed: !this.state.collapsed
@@ -45,9 +53,24 @@ class Home extends Component {
     }
   };
   logout = () => {
+    console.log("logout",this.props)
     localStorage.removeItem("userInfo");
     this.props.history.replace({
       pathname:"/"
+    })
+  }
+  onMenuDetail = (name) => {
+    if(name === 'home'){
+      this.setState({
+        currentItem:1
+      })
+    }else{
+      this.setState({
+        currentItem:2
+      })
+    }
+    this.props.history.push({
+      pathname:`/${name}`
     })
   }
   render() {
@@ -64,12 +87,12 @@ class Home extends Component {
       </div>
        </React.Fragment>
     )
-    const { imageUrl, userInfo } = this.state;
+    const { imageUrl, userInfo ,currentItem} = this.state;
     return (
       <div className="home">
         <div className="home-left">
           <Menu
-            defaultSelectedKeys={["1"]}
+            defaultSelectedKeys={[`${currentItem}`]}
             defaultOpenKeys={["sub1"]}
             mode="inline"
             theme="dark"
@@ -79,11 +102,17 @@ class Home extends Component {
             <div className="home-left-logo">
               <img className="home-left-logo-img" src={logo}></img>
             </div>
-            <Menu.Item key="1">
+            <Menu.Item key="1" onClick={
+              () => {
+                this.onMenuDetail('home')
+              }
+            }>
               <Icon type="pie-chart" />
               <span>CHASE-IBD数据库</span>
             </Menu.Item>
-            <Menu.Item key="2">
+            <Menu.Item key="2" onClick={() => {
+              this.onMenuDetail('menuCommittee')
+            }}>
               <Icon type="desktop" />
               <span>数据库委员会</span>
             </Menu.Item>
@@ -92,34 +121,11 @@ class Home extends Component {
         <div className="home-right">
           <div className="home-right-top">
             <div className="home-right-top-tabs">
-              <Tabs
-                defaultActiveKey="2"
-                tabBarStyle={{
-                  height: "70px",
-                  display: "flex",
-                  alignItems: "center",
-                  paddingLeft: "50px"
-                }}
-              >
-                <TabPane tab="通知" key="1">
-                 <NoticeList></NoticeList>
-                </TabPane>
-                <TabPane tab="申请加入数据库" key="2">
-                  <ApplyDataBase></ApplyDataBase>
-                </TabPane>
-                <TabPane tab="研究项目申请" key="3">
-                 <ApplyProject></ApplyProject>
-                </TabPane>
-                <TabPane tab="申请流程说明" key="4">
-                  Content of Tab Pane 3
-                </TabPane>
-                <TabPane tab="项目公示" key="5">
-                  Content of Tab Pane 3
-                </TabPane>
-                <TabPane tab="文件下载" key="6">
-                  Content of Tab Pane 3
-                </TabPane>
-              </Tabs>
+
+        {/* <Route exact path='/' component={Login}></Route> */}
+        <Route  path='/home' component={MenuDataBase}></Route>
+        <Route  path='/menuCommittee' component={MenuCommittee}></Route>
+           <MenuDataBase></MenuDataBase>
             </div>
 
             <div className="home-right-top-user">
