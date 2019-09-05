@@ -125,7 +125,7 @@ class Home extends Component {
         {/* <Route exact path='/' component={Login}></Route> */}
         <Route  path='/home' component={MenuDataBase}></Route>
         <Route  path='/menuCommittee' component={MenuCommittee}></Route>
-           <MenuDataBase></MenuDataBase>
+           {/* <MenuDataBase></MenuDataBase> */}
             </div>
 
             <div className="home-right-top-user">
