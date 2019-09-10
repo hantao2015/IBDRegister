@@ -26,10 +26,12 @@ class Home extends Component {
       collapsed: !this.state.collapsed
     });
   };
-  componentDidMount = () => {
+  componentDidMount = async() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const currentItem = JSON.parse(localStorage.getItem("currentItem"))
     this.setState({
-      userInfo
+      userInfo,
+      currentItem
     });
   };
   getBase64 = (img, callback) => {
@@ -61,10 +63,12 @@ class Home extends Component {
   }
   onMenuDetail = (name) => {
     if(name === 'home'){
+      localStorage.setItem("currentItem",1)
       this.setState({
         currentItem:1
       })
     }else{
+      localStorage.setItem("currentItem",2)
       this.setState({
         currentItem:2
       })
@@ -92,7 +96,7 @@ class Home extends Component {
       <div className="home">
         <div className="home-left">
           <Menu
-            defaultSelectedKeys={[`${currentItem}`]}
+            selectedKeys={[`${currentItem}`]}
             defaultOpenKeys={["sub1"]}
             mode="inline"
             theme="dark"

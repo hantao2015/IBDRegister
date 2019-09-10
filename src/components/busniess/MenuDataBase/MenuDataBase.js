@@ -17,7 +17,7 @@ class MenuDataBase extends Component {
   render() {
     return (
         <Tabs
-                defaultActiveKey="2"
+                defaultActiveKey="1"
                 tabBarStyle={{
                   height: "70px",
                   display: "flex",
@@ -34,15 +34,15 @@ class MenuDataBase extends Component {
                 <TabPane tab="研究项目申请" key="3">
                  <ApplyProject></ApplyProject>
                 </TabPane>
-                <TabPane tab="申请流程说明" key="4">
+                {/* <TabPane tab="申请流程说明" key="4">
+                  Content of Tab Pane 3
+                </TabPane> */}
+                <TabPane tab="项目公示" key="4">
                   Content of Tab Pane 3
                 </TabPane>
-                <TabPane tab="项目公示" key="5">
+                {/* <TabPane tab="文件下载" key="5">
                   Content of Tab Pane 3
-                </TabPane>
-                <TabPane tab="文件下载" key="6">
-                  Content of Tab Pane 3
-                </TabPane>
+                </TabPane> */}
               </Tabs>
     );
   }

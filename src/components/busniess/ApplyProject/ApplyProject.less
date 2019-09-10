@@ -1,37 +1,79 @@
-.applyDataBase-form {
-  width: 100%;
-  &-contain {
+.applyProject {
+  &-content {
     width: 100%;
-    &-info{
+    display: flex;
+    overflow: auto;
+    justify-content: center;
+    height: calc(100vh - 130px);
+    padding: 48px;
+    &-list {
+      width: 100%;
+      &-word {
+        margin: 0 50px 0 0;
+      }
+    }
+  }
+  &-form {
+    width: 100%;
+    .ant-form-item-label {
+      text-align: right !important;
+      white-space: pre-wrap !important;
+      line-height: 32px !important;
+    }
+    .ant-form-item-control {
+      line-height: 32px !important;
+    }
+    &-textarea {
+      height: 120px !important;
+    }
+
+    h1 {
+      text-align: center;
+    }
+    h3 {
+      text-align: center;
+    }
+    &-save {
+      position: fixed;
+      bottom: 20px;
+      left: 210px;
+    }
+    &-submit {
+      position: fixed;
+      bottom: 20px;
+      left: 280px;
+    }
+    &-print {
+      position: fixed;
+      bottom: 20px;
+      right: 30px;
+    }
+    &-contain {
+      width: 100%;
+      &-info {
         width: 50%;
         float: left;
         margin-left: 15%;
-    }
-    &-notice {
+      }
+      &-notice {
         height: 100%;
-        border:1px solid #ccc;
-        margin:10px 0 0 5%;
-        padding: 10px;
-        width: 300px;
+        border-left: 1px solid #e8e8e8;
+        margin: 10px 0 0 5%;
+        padding: 20px;
+        width: 340px;
         float: left;
-        span{
+        span {
           margin-bottom: 10px;
           width: 100%;
           text-align: center;
           display: block;
           font-size: 18px;
           font-weight: bold;
-         
-        }li{
-          margin: 5px 0 ;
         }
-        // position: absolute;
-        // right: 100px;
-
+        li {
+          margin: 5px 0;
+        }
+      }
     }
   }
-}
-.applyDataBase-content-list{
-  // border:1px solid #ebedf0;
-  // padding: 5px;
 }

@@ -54,40 +54,44 @@ class Register extends Component {
   };
   register = async () => {
     const { form } = this.props;
-    console.log("form", form);
     let res;
-    let registerData = {
-      Handphone: form.getFieldValue("phone"), // 手机号
-      userid: form.getFieldValue("postNumber"), //执业证号码
-      occuptionNumber: form.getFieldValue("postNumber"), //执业证号码
-      validcode: form.getFieldValue("valid"), // 验证码
-      hospital: form.getFieldValue("hospital"), // 医院
-      nickname: form.getFieldValue("doctor"),
-      // office:form.office,
-      validresid: 616852937051
-      // unionid: this.unionid,
-      // openid: this.openid
-    };
-    this.setState({
-      showSpin: true
-    });
-
-    try {
-      res = await http().register(registerData);
-      if (res.data.error == 0) {
-        message.success("注册成功");
-        this.props.history.push({
-          pathname: "/login"
-        });
-      } else {
-        message.error(res.data.message);
+    this.props.form.validateFieldsAndScroll(async (err, values) => {
+      if (err) {
+        return;
       }
-    } catch (error) {
-      console.log("res", error);
-      message.error(error.message);
-    }
-    this.setState({
-      showSpin: false
+      let registerData = {
+        Handphone: form.getFieldValue("phone"), // 手机号
+        userid: form.getFieldValue("postNumber"), //执业证号码
+        occuptionNumber: form.getFieldValue("postNumber"), //执业证号码
+        validcode: form.getFieldValue("valid"), // 验证码
+        hospital: form.getFieldValue("hospital"), // 医院
+        nickname: form.getFieldValue("doctor"),
+        // office:form.office,
+        validresid: 616852937051
+        // unionid: this.unionid,
+        // openid: this.openid
+      };
+      this.setState({
+        showSpin: true
+      });
+
+      try {
+        res = await http().register(registerData);
+        if (res.data.error == 0) {
+          message.success("注册成功");
+          this.props.history.push({
+            pathname: "/login"
+          });
+        } else {
+          message.error(res.data.message);
+        }
+      } catch (error) {
+        console.log("res", error);
+        message.error(error.message);
+      }
+      this.setState({
+        showSpin: false
+      });
     });
   };
   render() {

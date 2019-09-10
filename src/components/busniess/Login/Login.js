@@ -22,25 +22,30 @@ class Login extends Component {
     };
     e.preventDefault();
     let res;
-    this.setState({
-      showSpin: true
-    });
-    try {
-      res = await http().login(loginData);
-      if (res.data.OpResult == "Y") {
-        message.success("登录成功");
-        localStorage.setItem("userInfo", JSON.stringify(res.data));
-        this.props.history.push({
-          pathname: "/home"
-        });
-      } else {
-        message.error(res.data.ErrorMsg);
+    this.props.form.validateFieldsAndScroll(async (err, values) => {
+      if (err) {
+        return;
       }
-    } catch (error) {
-      message.error(error.message);
-    }
-    this.setState({
-      showSpin: false
+      this.setState({
+        showSpin: true
+      });
+      try {
+        res = await http().login(loginData);
+        if (res.data.OpResult == "Y") {
+          message.success("登录成功");
+          localStorage.setItem("userInfo", JSON.stringify(res.data));
+          this.props.history.push({
+            pathname: "/home"
+          });
+        } else {
+          message.error(res.data.ErrorMsg);
+        }
+      } catch (error) {
+        message.error(error.message);
+      }
+      this.setState({
+        showSpin: false
+      });
     });
   };
   countDown = () => {

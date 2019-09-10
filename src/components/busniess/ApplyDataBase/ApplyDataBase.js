@@ -95,7 +95,6 @@ class ApplyDataBase extends Component {
     });
   };
   onCheck = item => {
-    console.log("bbbb")
     this.setState({
       page: "checkPage",
       record: item
@@ -554,20 +553,19 @@ class ApplyDataBase extends Component {
             }
             className="applyDataBase-btn"
           >
-            {prop.page === "applyPage" || prop.page === "checkPage" ? "返回" : "申请"}
+            {prop.page === "applyPage" || prop.page === "checkPage" ? "返回" : prop.addText || "申请" }
           </Button>
           <a
             className="applyDataBase-photoBtn"
             type="link"
             onClick={prop.page === "showImagePage" ? this.props.onBack : this.props.showImage}
           >
-            {prop.page === "showImagePage" ? "返回" : "申请流程图"}
+            { prop.isShowImage ? '':  prop.page  === "showImagePage" ? "返回" : "申请流程图"}
           </a>
         </div>
         <Spin spinning={loading}>
           <div className="applyDataBase-content">
             {(() => {
-              console.log("prop",prop)
               switch (prop.page) {
                 case "listPage":
                   return prop.pages.listPage;
@@ -579,13 +577,6 @@ class ApplyDataBase extends Component {
                   return prop.pages.showImagePage;
               }
             })()}
-            {/* {page === "applyPage"
-            ? applyPage
-            : page === "checkPage"
-            ? checkPage:
-            page === 'showImagePage'?
-            showImagePage
-            : listPage} */}
           </div>
         </Spin>
       </div>

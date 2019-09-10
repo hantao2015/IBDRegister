@@ -96,6 +96,14 @@ http.createApi("login", {
 });
 
 /**
+ *获取表格数据 |新接口
+ */
+http.createApi("getTableNew", {
+  method: "get",
+  url: "/api/200/table/Retrieve"
+});
+
+/**
  *上传图片
  */
 http.createApi("putOneImageObject", {

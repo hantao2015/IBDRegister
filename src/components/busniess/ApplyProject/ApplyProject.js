@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./ApplyProject.less";
+import ReactToPrint from 'react-to-print';
 import ApplyDataBase from "../ApplyDataBase";
 import {
   Collapse,
@@ -13,12 +14,18 @@ import {
   Avatar,
   message,
   Popconfirm,
-  Spin
+  Spin,
+  Card
 } from "antd";
 import http from "../../../utils/api";
 import ShowImage from "../ApplyDataBase/ShowImage";
-import applyDataBaseImage from "../../../assets/images/applyDataBase.jpg";
+import CommitCard from './CommitCard'
+import applyProjectImage1 from "../../../assets/images/applyProject1.jpg";
+import applyProjectImage2 from "../../../assets/images/applyProject2.jpg";
+import TextArea from "antd/lib/input/TextArea";
 const applyProjectId = "620475440053";
+const suggestId  = '621432069832'
+const {Meta} = Card;
 
 class ApplyProject extends Component {
   state = {
@@ -26,10 +33,11 @@ class ApplyProject extends Component {
     applyList: [],
     page: "listPage",
     record: {},
+    postilData:[],
     loading: false
   };
-  componentDidMount(){
-     this.getApplyData();
+  componentDidMount() {
+    this.getApplyData();
   }
 
   //获取申请记录
@@ -39,19 +47,24 @@ class ApplyProject extends Component {
       loading: true
     });
     try {
-      res = await http().getTable({
-        resid: applyProjectId
+      res = await http().getTableNew({
+        resid: applyProjectId,
+        subresid:suggestId
       });
       let data = [];
-
+      let postil =[];
+      // console.log("res.data[621432069832]",res.data.data)
       res.data.data.map(item => {
         let studyType = item.studyType && item.studyType.split(",");
         item.studyType = studyType;
         data.push(item);
+        console.log("res.data[621432069832]",item[621432069832])
       });
-      if (res.data.error == 0) {
+
+      
+      if (res.data.Error == 0) {
         this.setState({
-          applyList: data
+          applyList: data,
         });
       }
     } catch (error) {
@@ -103,6 +116,20 @@ class ApplyProject extends Component {
         studyType: values.studyType,
         inlandUnit: values.inlandUnit,
         foreignUnit: values.foreignUnit,
+        studyReason:values.studyReason,
+        studyArea:values.studyArea,
+        studyTarget:values.studyTarget,
+        studyDescription:values.studyDescription,
+        studyLast:values.studyLast,
+        studySelected:values.studySelected,
+        studyAssess:values.studyAssess,
+        studyCheck:values.studyCheck,
+        staticMethod:values.staticMethod,
+        standard:values.standard,
+        sure:values.sure,
+        committee:values.committee,
+        referenceData:values.referenceData
+
       };
     } else {
       obj = {
@@ -115,6 +142,19 @@ class ApplyProject extends Component {
         studyType: values.studyType,
         inlandUnit: values.inlandUnit,
         foreignUnit: values.foreignUnit,
+        studyReason:values.studyReason,
+        studyArea:values.studyArea,
+        studyTarget:values.studyTarget,
+        studyDescription:values.studyDescription,
+        studyLast:values.studyLast,
+        studySelected:values.studySelected,
+        studyAssess:values.studyAssess,
+        studyCheck:values.studyCheck,
+        staticMethod:values.staticMethod,
+        standard:values.standard,
+        sure:values.sure,
+        committee:values.committee,
+        referenceData:values.referenceData,
         isSubmit: "Y"
       };
     }
@@ -129,7 +169,7 @@ class ApplyProject extends Component {
       this.setState({
         page: "listPage"
       });
-      this.getApplyData();
+     await this.getApplyData();
     } catch (error) {
       message.error(error.message);
     }
@@ -145,7 +185,7 @@ class ApplyProject extends Component {
     });
   };
   onCheck = item => {
-      console.log("aaa")
+    console.log("aaa");
     this.setState({
       page: "checkPage",
       record: item
@@ -153,12 +193,17 @@ class ApplyProject extends Component {
   };
   showImage = () => {
     this.setState({
-      page: "showImagePage",
+      page: "showImagePage"
     });
   };
+  //打印
+  print = () => {
+    window.print();
+    // window.location.reload();
+  }
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { imageUrl, applyList, loading, page, record } = this.state;
+    const { imageUrl, applyList, loading, page, record,postilData } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -188,82 +233,134 @@ class ApplyProject extends Component {
       { label: "所有研究", value: "所有研究" }
     ];
     const pages = {
-      showImagePage: <ShowImage image={applyDataBaseImage}></ShowImage>,
+      showImagePage: (
+        <React.Fragment>
+          <ShowImage image={applyProjectImage1}></ShowImage>
+          <ShowImage image={applyProjectImage2}></ShowImage>
+        </React.Fragment>
+      ),
       checkPage: (
         <Form
           {...formItemLayout}
           // onSubmit={this.handleSubmit}
-          className="applyDataBase-form"
+          className="applyProject-form"
         >
-          <h1>CHASE-IBD专项课题申请表</h1>
-          <h3>基本信息</h3>
-          <Form.Item label={<span>课题名称&nbsp;</span>}>
-            <span>{record.doctor}</span>
-          </Form.Item>
-          <Form.Item label={<span>课题负责人&nbsp;</span>}>
-            <span>{record.hospital}</span>
-          </Form.Item>
-          <Form.Item label={<span>申请人&nbsp;</span>}>
-            <span>{record.post}</span>
-          </Form.Item>
-          <Form.Item label={<span>所属单位&nbsp;</span>}>
-            <span>{record.phoneNumber}</span>
-          </Form.Item>
-          <Form.Item label={<span>职称&nbsp;</span>}>
-            <span>{record.email}</span>
-          </Form.Item>
-          <Form.Item label={<span>联系电话&nbsp;</span>}>
-            <span>{record.email}</span>
-          </Form.Item>
-          <Form.Item label={<span>E-mail&nbsp;</span>}>
-            <span>{record.email}</span>
-          </Form.Item>
-          <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
-            <span>{record.email}</span>
-          </Form.Item>
-          <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
-            <span>{record.email}</span>
-          </Form.Item>
-          {/* <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
+
+
+          <div className="applyProject-form-contain">
+            <div className="applyProject-form-contain-info">
+              <h1>CHASE-IBD专项课题申请表</h1>
+              <h3>基本信息</h3>
+              <Form.Item label={<span>课题名称&nbsp;</span>}>
+                <span>{record.doctor}</span>
+              </Form.Item>
+              <Form.Item label={<span>课题负责人&nbsp;</span>}>
+                <span>{record.hospital}</span>
+              </Form.Item>
+              <Form.Item label={<span>申请人&nbsp;</span>}>
+                <span>{record.post}</span>
+              </Form.Item>
+              <Form.Item label={<span>所属单位&nbsp;</span>}>
+                <span>{record.phoneNumber}</span>
+              </Form.Item>
+              <Form.Item label={<span>职称&nbsp;</span>}>
+                <span>{record.email}</span>
+              </Form.Item>
+              <Form.Item label={<span>联系电话&nbsp;</span>}>
+                <span>{record.email}</span>
+              </Form.Item>
+              <Form.Item label={<span>E-mail&nbsp;</span>}>
+                <span>{record.email}</span>
+              </Form.Item>
+              <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
+                <span>{record.email}</span>
+              </Form.Item>
+              <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
+                <span>{record.email}</span>
+              </Form.Item>
+              {/* <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
             <span>{record.teamPeople}</span>&nbsp;&nbsp;
             <span>{record.teamPeople2}</span>&nbsp;&nbsp;
             <span>{record.teamPeople3}</span>&nbsp;&nbsp;
           </Form.Item> */}
-          {/* <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
+              {/* <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
             <Checkbox.Group
               options={options}
               defaultValue={record.studyType}
               onChange={this.onChangeCheckbox}
             />
           </Form.Item> */}
-          <h3>研究内容</h3>
-
-          <Form.Item label={<span>CD患者数量&nbsp;</span>}>
-            <span>{record.CDPatientNumber}</span>
-          </Form.Item>
-          <Form.Item label={<span>UC患者数量&nbsp;</span>}>
-            <span>{record.UCPatientNumber}</span>
-          </Form.Item>
-          <Form.Item label={<span>医师执照&nbsp;</span>}>
-            <img
-              src={record.doctorPhoto}
-              alt="avatar"
-              style={{ backgroundSize: "100%" }}
-            />
-          </Form.Item>
-
-          <Button
+              <h3>研究内容</h3>
+              <Form.Item label={<span>研究的理由&nbsp;</span>}>
+                <span>{record.studyReason}</span>
+              </Form.Item>
+              <Form.Item label={<span>研究区域&nbsp;</span>}>
+                <span>{record.studyArea}</span>
+              </Form.Item>
+              <Form.Item label={<span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>}>
+                <span>{record.studyTarget}</span>
+              </Form.Item>
+              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
+                <span>{record.studyLast}</span>
+              </Form.Item>
+              <Form.Item label={<span>研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;</span>}>
+                <span>{record.studyDescription}</span>
+              </Form.Item>
+              <Form.Item label={<span>项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;</span>}>
+                <span>{record.studySelected}</span>
+              </Form.Item>
+              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
+                <span>{record.studyLast}</span>
+              </Form.Item>
+              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
+                <span>{record.studyAssess}</span>
+              </Form.Item>
+              <Form.Item label={<span>实验室检查：检查具体指标参数&nbsp;</span>}>
+                <span>{record.studyCheck}</span>
+              </Form.Item>
+              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
+                <span>{record.studyAssess}</span>
+              </Form.Item>
+              <Form.Item label={<span>统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;</span>}>
+                <span>{record.staticMethod}</span>
+              </Form.Item>
+              <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
+                <span>{record.standard}</span>
+              </Form.Item>
+              <Form.Item label={<span>样本量的确定&nbsp;</span>}>
+                <span>{record.sure}</span>
+              </Form.Item>
+              <Form.Item label={<span>伦理委员会&nbsp;</span>}>
+                <span>{record.committee}</span>
+              </Form.Item>
+              <Form.Item label={<span>参考资料&nbsp;</span>}>
+                <span>{record.referenceData}</span>
+              </Form.Item>
+            </div>
+          {record['621432069832']  ?   <div className="applyProject-form-contain-notice">
+              <span>来自数委会的批注</span>
+          {record['621432069832']&&record['621432069832'].map((item) => {
+            return  <CommitCard key={item.REC_ID} data={item}></CommitCard>
+          })}
+           
+            </div>:null
+            }
+          </div>
+          <Button 
             icon="download"
             type="primary"
-            className="applyDataBase-form-print"
+            className="applyProject-form-print"
+            onClick={this.print}
           >
             打印
           </Button>
+          
         </Form>
+        
       ),
       listPage: (
         <List
-          className="applyDataBase-content-list"
+          className="applyProject-content-list"
           itemLayout="horizontal"
           dataSource={applyList}
           renderItem={item => (
@@ -296,17 +393,19 @@ class ApplyProject extends Component {
                 // }
                 title={
                   <React.Fragment>
-                    <a className="applyDataBase-content-list-word" href="#">
+                    <a className="applyProject-content-list-word" href="#">
                       课题名称:{item.task}
                     </a>
-                    <a className="applyDataBase-content-list-word" href="#">
+                    <a className="applyProject-content-list-word" href="#">
                       所属单位:{item.hospital}
                     </a>
                   </React.Fragment>
                 }
                 description={item.status}
               />
-              <div className='applyDataBase-content-list-word'>申请日期：{item.doctor}</div>
+              <div className="applyProject-content-list-word">
+                申请日期：{item.doctor}
+              </div>
               <div>申请日期：{item.REC_CRTTIME}</div>
               {/* </Skeleton> */}
             </List.Item>
@@ -317,128 +416,260 @@ class ApplyProject extends Component {
         <Form
           {...formItemLayout}
           // onSubmit={this.handleSubmit}
-          className="applyDataBase-form"
+          className="applyProject-form"
         >
-          <div className='applyDataBase-form-contain'>
-            <div className='applyDataBase-form-contain-info'>
-          <h1>CHASE-IBD专项课题申请表</h1>
-          <h3>基本信息</h3> 
-          
-          <Form.Item label={<span>课题名称&nbsp;</span>}>
-            {getFieldDecorator("task", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入课题名称",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>课题负责人&nbsp;</span>}>
-            {getFieldDecorator("taskPrincipal", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入课题负责人",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>申请人&nbsp;</span>}>
-            {getFieldDecorator("doctor", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入申请人",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>所属单位&nbsp;</span>}>
-            {getFieldDecorator("hospital", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入所属单位",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>职称&nbsp;</span>}>
-            {getFieldDecorator("post", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入您的职称！",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>联系电话&nbsp;</span>}>
-            {getFieldDecorator("phone", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入您的联系电话!",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>E-mail&nbsp;</span>}>
-            {getFieldDecorator("email", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入您的邮箱!",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
-            {getFieldDecorator("inlandUnit", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入拟定国内协作单位!",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
-            {getFieldDecorator("forignUnit", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入拟定国际协作单位!",
-                  whitespace: true
-                }
-              ]
-            })(<Input />)}
-          </Form.Item>
-          <h3>研究内容</h3>
+          <div className="applyProject-form-contain">
+            <div className="applyProject-form-contain-info">
+              <h1>CHASE-IBD专项课题申请表</h1>
+              <h3>基本信息</h3>
 
-          </div>
-          <div className='applyDataBase-form-contain-notice'>
-            <span>来自数委会的批注</span>
-          <div>
-            <ul>
-              <li>XX教授：1f放松放松付所多付付付付付付</li>
-              <li>XX教授：2</li>
-              <li>XX教授：3</li>
-              <li>XX教授：444</li>
-            </ul>
-          </div></div>
+              <Form.Item label={<span>课题名称&nbsp;</span>}>
+                {getFieldDecorator("task", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入课题名称",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>课题负责人&nbsp;</span>}>
+                {getFieldDecorator("taskPrincipal", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入课题负责人",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>申请人&nbsp;</span>}>
+                {getFieldDecorator("doctor", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入申请人",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>所属单位&nbsp;</span>}>
+                {getFieldDecorator("hospital", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入所属单位",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>职称&nbsp;</span>}>
+                {getFieldDecorator("post", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入您的职称！",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>联系电话&nbsp;</span>}>
+                {getFieldDecorator("phone", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入您的联系电话!",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>E-mail&nbsp;</span>}>
+                {getFieldDecorator("email", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入您的邮箱!",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
+                {getFieldDecorator("inlandUnit", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入拟定国内协作单位!",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
+                {getFieldDecorator("forignUnit", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入拟定国际协作单位!",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>
+              <h3>研究内容</h3>
+              <Form.Item label={<span>研究的理由&nbsp;</span>}>
+                {getFieldDecorator("studyReason", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入研究的理由!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>研究区域&nbsp;</span>}>
+                {getFieldDecorator("studyArea", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入研究区域!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>}>
+                {getFieldDecorator("studyTarget", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入研究目标!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea' />)}
+              </Form.Item>
+              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
+                {getFieldDecorator("studyLast", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入研究终点!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;</span>}>
+                {getFieldDecorator("studyDescription", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入研究设计与描述!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;</span>}>
+                {getFieldDecorator("studySelected", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入项目入选!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
+                {getFieldDecorator("studyAssess", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入评估!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>实验室检查：检查具体指标参数&nbsp;</span>}>
+                {getFieldDecorator("studyCheck", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入实验室检查!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;</span>}>
+                {getFieldDecorator("staticMethod", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入统计方法!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
+                {getFieldDecorator("standard", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入中期分析和提前终止的标准!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>样本量的确定&nbsp;</span>}>
+                {getFieldDecorator("sure", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入样本量的确定!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>伦理委员会&nbsp;</span>}>
+                {getFieldDecorator("committee", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入伦理委员会!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+              <Form.Item label={<span>参考资料&nbsp;</span>}>
+                {getFieldDecorator("referenceData", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入参考资料!",
+                      whitespace: true
+                    }
+                  ]
+                })(<TextArea className='applyProject-form-textarea'/>)}
+              </Form.Item>
+            </div>
           </div>
           <Button
-            className="applyDataBase-form-save"
+            className="applyProject-form-save"
             htmlType="submit"
             onClick={() => {
               this.handleSubmit(this, 1);
@@ -448,7 +679,7 @@ class ApplyProject extends Component {
           </Button>
           <Button
             type="primary"
-            className="applyDataBase-form-submit"
+            className="applyProject-form-submit"
             htmlType="submit"
             onClick={() => {
               this.handleSubmit(this, 2);
@@ -456,12 +687,20 @@ class ApplyProject extends Component {
           >
             提交
           </Button>
-          
         </Form>
       )
     };
 
-    return <ApplyDataBase pages={pages} page={this.state.page} onBack={this.onBack} showImage={this.showImage} onApply={this.onApply}></ApplyDataBase>;
+    return (
+      <ApplyDataBase
+        pages={pages}
+        page={this.state.page}
+        onBack={this.onBack}
+        showImage={this.showImage}
+        onApply={this.onApply}
+      ></ApplyDataBase>
+      
+    );
   }
 }
 
