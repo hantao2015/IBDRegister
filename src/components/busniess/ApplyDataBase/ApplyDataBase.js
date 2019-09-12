@@ -330,17 +330,17 @@ class ApplyDataBase extends Component {
           <img
             src={record.doctorPhoto}
             alt="avatar"
-            style={{ backgroundSize: "100%" }}
+            style={{ width:"500px",height:"500px"}}
           />
         </Form.Item>
 
-        <Button
+        {/* <Button
           icon="download"
           type="primary"
           className="applyDataBase-form-print"
         >
           打印
-        </Button>
+        </Button> */}
       </Form>
     );
     const listPage = (
@@ -496,7 +496,7 @@ class ApplyDataBase extends Component {
             ]
           })(<Input />)}
         </Form.Item>
-        <Form.Item label={<span>医师执照：&nbsp;</span>}>
+        <Form.Item style={{width:"600px"}} label={<span>医师执照：&nbsp;</span>}>
           {getFieldDecorator("doctorPhoto", {})(
             <Upload
               name="avatar"
@@ -560,7 +560,7 @@ class ApplyDataBase extends Component {
             type="link"
             onClick={prop.page === "showImagePage" ? this.props.onBack : this.props.showImage}
           >
-            { prop.isShowImage ? '':  prop.page  === "showImagePage" ? "返回" : "申请流程图"}
+            { prop.isShowImage ? '':  prop.page  === "showImagePage" ? "返回" : prop.page === 'listPage'?'申请流程图': ""}
           </a>
         </div>
         <Spin spinning={loading}>
@@ -585,3 +585,4 @@ class ApplyDataBase extends Component {
 }
 
 export default Form.create()(ApplyDataBase);
+

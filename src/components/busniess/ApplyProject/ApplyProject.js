@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./ApplyProject.less";
-import ReactToPrint from 'react-to-print';
+import ReactToPrint from "react-to-print";
 import ApplyDataBase from "../ApplyDataBase";
 import {
   Collapse,
@@ -19,13 +19,13 @@ import {
 } from "antd";
 import http from "../../../utils/api";
 import ShowImage from "../ApplyDataBase/ShowImage";
-import CommitCard from './CommitCard'
+import CommitCard from "./CommitCard";
 import applyProjectImage1 from "../../../assets/images/applyProject1.jpg";
 import applyProjectImage2 from "../../../assets/images/applyProject2.jpg";
 import TextArea from "antd/lib/input/TextArea";
 const applyProjectId = "620475440053";
-const suggestId  = '621432069832'
-const {Meta} = Card;
+const suggestId = "621432069832";
+const { Meta } = Card;
 
 class ApplyProject extends Component {
   state = {
@@ -33,7 +33,7 @@ class ApplyProject extends Component {
     applyList: [],
     page: "listPage",
     record: {},
-    postilData:[],
+    postilData: [],
     loading: false
   };
   componentDidMount() {
@@ -49,22 +49,21 @@ class ApplyProject extends Component {
     try {
       res = await http().getTableNew({
         resid: applyProjectId,
-        subresid:suggestId
+        subresid: suggestId
       });
       let data = [];
-      let postil =[];
+      let postil = [];
       // console.log("res.data[621432069832]",res.data.data)
       res.data.data.map(item => {
         let studyType = item.studyType && item.studyType.split(",");
         item.studyType = studyType;
         data.push(item);
-        console.log("res.data[621432069832]",item[621432069832])
+        console.log("res.data[621432069832]", item[621432069832]);
       });
 
-      
       if (res.data.Error == 0) {
         this.setState({
-          applyList: data,
+          applyList: data
         });
       }
     } catch (error) {
@@ -116,20 +115,19 @@ class ApplyProject extends Component {
         studyType: values.studyType,
         inlandUnit: values.inlandUnit,
         foreignUnit: values.foreignUnit,
-        studyReason:values.studyReason,
-        studyArea:values.studyArea,
-        studyTarget:values.studyTarget,
-        studyDescription:values.studyDescription,
-        studyLast:values.studyLast,
-        studySelected:values.studySelected,
-        studyAssess:values.studyAssess,
-        studyCheck:values.studyCheck,
-        staticMethod:values.staticMethod,
-        standard:values.standard,
-        sure:values.sure,
-        committee:values.committee,
-        referenceData:values.referenceData
-
+        studyReason: values.studyReason,
+        studyArea: values.studyArea,
+        studyTarget: values.studyTarget,
+        studyDescription: values.studyDescription,
+        studyLast: values.studyLast,
+        studySelected: values.studySelected,
+        studyAssess: values.studyAssess,
+        studyCheck: values.studyCheck,
+        staticMethod: values.staticMethod,
+        standard: values.standard,
+        sure: values.sure,
+        committee: values.committee,
+        referenceData: values.referenceData
       };
     } else {
       obj = {
@@ -142,19 +140,19 @@ class ApplyProject extends Component {
         studyType: values.studyType,
         inlandUnit: values.inlandUnit,
         foreignUnit: values.foreignUnit,
-        studyReason:values.studyReason,
-        studyArea:values.studyArea,
-        studyTarget:values.studyTarget,
-        studyDescription:values.studyDescription,
-        studyLast:values.studyLast,
-        studySelected:values.studySelected,
-        studyAssess:values.studyAssess,
-        studyCheck:values.studyCheck,
-        staticMethod:values.staticMethod,
-        standard:values.standard,
-        sure:values.sure,
-        committee:values.committee,
-        referenceData:values.referenceData,
+        studyReason: values.studyReason,
+        studyArea: values.studyArea,
+        studyTarget: values.studyTarget,
+        studyDescription: values.studyDescription,
+        studyLast: values.studyLast,
+        studySelected: values.studySelected,
+        studyAssess: values.studyAssess,
+        studyCheck: values.studyCheck,
+        staticMethod: values.staticMethod,
+        standard: values.standard,
+        sure: values.sure,
+        committee: values.committee,
+        referenceData: values.referenceData,
         isSubmit: "Y"
       };
     }
@@ -169,7 +167,7 @@ class ApplyProject extends Component {
       this.setState({
         page: "listPage"
       });
-     await this.getApplyData();
+      await this.getApplyData();
     } catch (error) {
       message.error(error.message);
     }
@@ -196,14 +194,32 @@ class ApplyProject extends Component {
       page: "showImagePage"
     });
   };
-  //打印
+  // //打印
   print = () => {
+    var printBox = document.getElementById("applyProjectForm");
+    //拿到打印的区域的html内容
+    var newContent = printBox.innerHTML;
+    //将旧的页面储存起来，当打印完成后返给给页面。
+    var oldContent = document.body.innerHTML;
+    //赋值给body
+    document.body.innerHTML = newContent;
+    //执行window.print打印功能
     window.print();
-    // window.location.reload();
-  }
+    // 重新加载页面，以刷新数据。以防打印完之后，页面不能操作的问题
+    window.location.reload();
+    document.body.innerHTML = oldContent;
+    return false;
+  };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { imageUrl, applyList, loading, page, record,postilData } = this.state;
+    const {
+      imageUrl,
+      applyList,
+      loading,
+      page,
+      record,
+      postilData
+    } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -240,113 +256,157 @@ class ApplyProject extends Component {
         </React.Fragment>
       ),
       checkPage: (
-        <Form
-          {...formItemLayout}
-          // onSubmit={this.handleSubmit}
-          className="applyProject-form"
-        >
-
-
-          <div className="applyProject-form-contain">
-            <div className="applyProject-form-contain-info">
-              <h1>CHASE-IBD专项课题申请表</h1>
-              <h3>基本信息</h3>
-              <Form.Item label={<span>课题名称&nbsp;</span>}>
-                <span>{record.doctor}</span>
-              </Form.Item>
-              <Form.Item label={<span>课题负责人&nbsp;</span>}>
-                <span>{record.hospital}</span>
-              </Form.Item>
-              <Form.Item label={<span>申请人&nbsp;</span>}>
-                <span>{record.post}</span>
-              </Form.Item>
-              <Form.Item label={<span>所属单位&nbsp;</span>}>
-                <span>{record.phoneNumber}</span>
-              </Form.Item>
-              <Form.Item label={<span>职称&nbsp;</span>}>
-                <span>{record.email}</span>
-              </Form.Item>
-              <Form.Item label={<span>联系电话&nbsp;</span>}>
-                <span>{record.email}</span>
-              </Form.Item>
-              <Form.Item label={<span>E-mail&nbsp;</span>}>
-                <span>{record.email}</span>
-              </Form.Item>
-              <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
-                <span>{record.email}</span>
-              </Form.Item>
-              <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
-                <span>{record.email}</span>
-              </Form.Item>
-              {/* <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
+        <React.Fragment>
+          <Form
+            {...formItemLayout}
+            // onSubmit={this.handleSubmit}
+            className="applyProject-form"
+            id="applyProjectForm"
+          >
+            <div className="applyProject-form-contain">
+              <div className="applyProject-form-contain-info">
+                <h1 style={{textAlign:"center"}}>CHASE-IBD专项课题申请表</h1>
+                <h3 style={{textAlign:"center"}}>基本信息</h3>
+                <Form.Item label={<span>课题名称&nbsp;</span>}>
+                  <span>{record.doctor}</span>
+                </Form.Item>
+                <Form.Item label={<span>课题负责人&nbsp;</span>}>
+                  <span>{record.hospital}</span>
+                </Form.Item>
+                <Form.Item label={<span>申请人&nbsp;</span>}>
+                  <span>{record.post}</span>
+                </Form.Item>
+                <Form.Item label={<span>所属单位&nbsp;</span>}>
+                  <span>{record.phoneNumber}</span>
+                </Form.Item>
+                <Form.Item label={<span>职称&nbsp;</span>}>
+                  <span>{record.email}</span>
+                </Form.Item>
+                <Form.Item label={<span>联系电话&nbsp;</span>}>
+                  <span>{record.email}</span>
+                </Form.Item>
+                <Form.Item label={<span>E-mail&nbsp;</span>}>
+                  <span>{record.email}</span>
+                </Form.Item>
+                <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
+                  <span>{record.email}</span>
+                </Form.Item>
+                <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
+                  <span>{record.email}</span>
+                </Form.Item>
+                {/* <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
             <span>{record.teamPeople}</span>&nbsp;&nbsp;
             <span>{record.teamPeople2}</span>&nbsp;&nbsp;
             <span>{record.teamPeople3}</span>&nbsp;&nbsp;
           </Form.Item> */}
-              {/* <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
+                {/* <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
             <Checkbox.Group
               options={options}
               defaultValue={record.studyType}
               onChange={this.onChangeCheckbox}
             />
           </Form.Item> */}
-              <h3>研究内容</h3>
-              <Form.Item label={<span>研究的理由&nbsp;</span>}>
-                <span>{record.studyReason}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究区域&nbsp;</span>}>
-                <span>{record.studyArea}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>}>
-                <span>{record.studyTarget}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
-                <span>{record.studyLast}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;</span>}>
-                <span>{record.studyDescription}</span>
-              </Form.Item>
-              <Form.Item label={<span>项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;</span>}>
-                <span>{record.studySelected}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
-                <span>{record.studyLast}</span>
-              </Form.Item>
-              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
-                <span>{record.studyAssess}</span>
-              </Form.Item>
-              <Form.Item label={<span>实验室检查：检查具体指标参数&nbsp;</span>}>
-                <span>{record.studyCheck}</span>
-              </Form.Item>
-              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
-                <span>{record.studyAssess}</span>
-              </Form.Item>
-              <Form.Item label={<span>统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;</span>}>
-                <span>{record.staticMethod}</span>
-              </Form.Item>
-              <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
-                <span>{record.standard}</span>
-              </Form.Item>
-              <Form.Item label={<span>样本量的确定&nbsp;</span>}>
-                <span>{record.sure}</span>
-              </Form.Item>
-              <Form.Item label={<span>伦理委员会&nbsp;</span>}>
-                <span>{record.committee}</span>
-              </Form.Item>
-              <Form.Item label={<span>参考资料&nbsp;</span>}>
-                <span>{record.referenceData}</span>
-              </Form.Item>
+                <h3 style={{textAlign:"center"}}>研究内容</h3>
+                <Form.Item label={<span>研究的理由&nbsp;</span>}>
+                  <span>{record.studyReason}</span>
+                </Form.Item>
+                <Form.Item label={<span>研究区域&nbsp;</span>}>
+                  <span>{record.studyArea}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>
+                  }
+                >
+                  <span>{record.studyTarget}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>
+                  }
+                >
+                  <span>{record.studyLast}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>
+                      研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;
+                    </span>
+                  }
+                >
+                  <span>{record.studyDescription}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>
+                      项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;
+                    </span>
+                  }
+                >
+                  <span>{record.studySelected}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>
+                  }
+                >
+                  <span>{record.studyLast}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>
+                  }
+                >
+                  <span>{record.studyAssess}</span>
+                </Form.Item>
+                <Form.Item
+                  label={<span>实验室检查：检查具体指标参数&nbsp;</span>}
+                >
+                  <span>{record.studyCheck}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>
+                  }
+                >
+                  <span>{record.studyAssess}</span>
+                </Form.Item>
+                <Form.Item
+                  label={
+                    <span>
+                      统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;
+                    </span>
+                  }
+                >
+                  <span>{record.staticMethod}</span>
+                </Form.Item>
+                <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
+                  <span>{record.standard}</span>
+                </Form.Item>
+                <Form.Item label={<span>样本量的确定&nbsp;</span>}>
+                  <span>{record.sure}</span>
+                </Form.Item>
+                <Form.Item label={<span>伦理委员会&nbsp;</span>}>
+                  <span>{record.committee}</span>
+                </Form.Item>
+                <Form.Item label={<span>参考资料&nbsp;</span>}>
+                  <span>{record.referenceData}</span>
+                </Form.Item>
+              </div>
+              {record["621432069832"] ? (
+                <div className="applyProject-form-contain-notice">
+                  <span>来自数委会的批注</span>
+                  {record["621432069832"] &&
+                    record["621432069832"].map(item => {
+                      return (
+                        <CommitCard key={item.REC_ID} data={item}></CommitCard>
+                      );
+                    })}
+                </div>
+              ) : null}
             </div>
-          {record['621432069832']  ?   <div className="applyProject-form-contain-notice">
-              <span>来自数委会的批注</span>
-          {record['621432069832']&&record['621432069832'].map((item) => {
-            return  <CommitCard key={item.REC_ID} data={item}></CommitCard>
-          })}
-           
-            </div>:null
-            }
-          </div>
-          <Button 
+          </Form>
+          <Button
             icon="download"
             type="primary"
             className="applyProject-form-print"
@@ -354,9 +414,7 @@ class ApplyProject extends Component {
           >
             打印
           </Button>
-          
-        </Form>
-        
+        </React.Fragment>
       ),
       listPage: (
         <List
@@ -420,8 +478,8 @@ class ApplyProject extends Component {
         >
           <div className="applyProject-form-contain">
             <div className="applyProject-form-contain-info">
-              <h1>CHASE-IBD专项课题申请表</h1>
-              <h3>基本信息</h3>
+              <h1 style={{textAlign:"center"}}>CHASE-IBD专项课题申请表</h1>
+              <h3 style={{textAlign:"center"}}>基本信息</h3>
 
               <Form.Item label={<span>课题名称&nbsp;</span>}>
                 {getFieldDecorator("task", {
@@ -522,7 +580,7 @@ class ApplyProject extends Component {
                   ]
                 })(<Input />)}
               </Form.Item>
-              <h3>研究内容</h3>
+              <h3 style={{textAlign:"center"}}>研究内容</h3>
               <Form.Item label={<span>研究的理由&nbsp;</span>}>
                 {getFieldDecorator("studyReason", {
                   rules: [
@@ -532,7 +590,7 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>研究区域&nbsp;</span>}>
                 {getFieldDecorator("studyArea", {
@@ -543,9 +601,13 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>}>
+              <Form.Item
+                label={
+                  <span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>
+                }
+              >
                 {getFieldDecorator("studyTarget", {
                   rules: [
                     {
@@ -554,9 +616,13 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea' />)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
+              <Form.Item
+                label={
+                  <span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>
+                }
+              >
                 {getFieldDecorator("studyLast", {
                   rules: [
                     {
@@ -565,9 +631,15 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;</span>}>
+              <Form.Item
+                label={
+                  <span>
+                    研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;
+                  </span>
+                }
+              >
                 {getFieldDecorator("studyDescription", {
                   rules: [
                     {
@@ -576,9 +648,15 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;</span>}>
+              <Form.Item
+                label={
+                  <span>
+                    项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;
+                  </span>
+                }
+              >
                 {getFieldDecorator("studySelected", {
                   rules: [
                     {
@@ -587,9 +665,11 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
+              <Form.Item
+                label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}
+              >
                 {getFieldDecorator("studyAssess", {
                   rules: [
                     {
@@ -598,9 +678,11 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>实验室检查：检查具体指标参数&nbsp;</span>}>
+              <Form.Item
+                label={<span>实验室检查：检查具体指标参数&nbsp;</span>}
+              >
                 {getFieldDecorator("studyCheck", {
                   rules: [
                     {
@@ -609,9 +691,15 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
-              <Form.Item label={<span>统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;</span>}>
+              <Form.Item
+                label={
+                  <span>
+                    统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;
+                  </span>
+                }
+              >
                 {getFieldDecorator("staticMethod", {
                   rules: [
                     {
@@ -620,7 +708,7 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
                 {getFieldDecorator("standard", {
@@ -631,7 +719,7 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>样本量的确定&nbsp;</span>}>
                 {getFieldDecorator("sure", {
@@ -642,7 +730,7 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>伦理委员会&nbsp;</span>}>
                 {getFieldDecorator("committee", {
@@ -653,7 +741,7 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>参考资料&nbsp;</span>}>
                 {getFieldDecorator("referenceData", {
@@ -664,7 +752,7 @@ class ApplyProject extends Component {
                       whitespace: true
                     }
                   ]
-                })(<TextArea className='applyProject-form-textarea'/>)}
+                })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
             </div>
           </div>
@@ -692,14 +780,28 @@ class ApplyProject extends Component {
     };
 
     return (
-      <ApplyDataBase
-        pages={pages}
-        page={this.state.page}
-        onBack={this.onBack}
-        showImage={this.showImage}
-        onApply={this.onApply}
-      ></ApplyDataBase>
-      
+      <React.Fragment>
+        {/* <ReactToPrint
+          trigger={() => (
+            <Button
+              icon="download"
+              type="primary"
+              className="applyDataBase-form-print"
+            >
+              打印
+            </Button>
+          )}
+          content={() => this.componentRef}
+        /> */}
+        <ApplyDataBase
+          pages={pages}
+          page={this.state.page}
+          onBack={this.onBack}
+          showImage={this.showImage}
+          onApply={this.onApply}
+          ref={el => (this.componentRef = el)}
+        ></ApplyDataBase>
+      </React.Fragment>
     );
   }
 }

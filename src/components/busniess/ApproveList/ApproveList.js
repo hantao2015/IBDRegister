@@ -189,7 +189,7 @@ class ApproveList extends React.Component {
           <img
             src={record.doctorPhoto}
             alt="avatar"
-            style={{ backgroundSize: "100%" }}
+            style={{ width: "200px",height:"200px" }}
           />
         </Form.Item>
       </Form>

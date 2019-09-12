@@ -212,6 +212,13 @@ class ApproveProjectList extends React.Component {
 
           <Button
             className="approveList-btn"
+            type="danger"
+            onClick={this.onBack}
+          >
+            拒绝
+          </Button>
+          <Button
+            className="approveList-btn"
             type="primary"
             onClick={this.onSuggest}
           >

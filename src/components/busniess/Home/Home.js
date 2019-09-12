@@ -29,10 +29,18 @@ class Home extends Component {
   componentDidMount = async() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     const currentItem = JSON.parse(localStorage.getItem("currentItem"))
+    if(currentItem){
+
     this.setState({
       userInfo,
       currentItem
     });
+    }else{
+
+    this.setState({
+      userInfo
+    });
+    }
   };
   getBase64 = (img, callback) => {
     const reader = new FileReader();
@@ -57,6 +65,7 @@ class Home extends Component {
   logout = () => {
     console.log("logout",this.props)
     localStorage.removeItem("userInfo");
+    localStorage.removeItem('currentItem');
     this.props.history.replace({
       pathname:"/"
     })

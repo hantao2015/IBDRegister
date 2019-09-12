@@ -6,6 +6,7 @@ import NoticeList from "../NoticeList";
 import ApplyDataBase from "../ApplyDataBase";
 import ApplyProject from "../ApplyProject";
 import ActApply from "../ActApply";
+import ShowProject from "../ShowProject";
 const { TabPane } = Tabs;
 
 class MenuDataBase extends Component {
@@ -38,7 +39,7 @@ class MenuDataBase extends Component {
                   Content of Tab Pane 3
                 </TabPane> */}
                 <TabPane tab="项目公示" key="4">
-                  Content of Tab Pane 3
+                  <ShowProject></ShowProject>
                 </TabPane>
                 {/* <TabPane tab="文件下载" key="5">
                   Content of Tab Pane 3

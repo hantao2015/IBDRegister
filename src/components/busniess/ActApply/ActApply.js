@@ -18,27 +18,28 @@ import {
 } from "antd";
 import http from "../../../utils/api";
 import ShowImage from "../ApplyDataBase/ShowImage";
+import ReactToPrint from "react-to-print";
 import applyDataBaseImage from "../../../assets/images/applyDataBase.jpg";
 const applyDataBaseId = "620384838453";
 
 const uploadFile = (file, url) => {
-    return new Promise((resolve, reject) => {
-      let fd = new FormData();
-      fd.append("file", file, file.name);
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", url);
-      xhr.onload = () => {
-        const data = JSON.parse(xhr.response);
-        if (xhr.status === 200 && (data.error === 0 || data.error === "0")) {
-          const imgUrl = data.data;
-          resolve(imgUrl);
-        } else {
-          reject(data);
-        }
-      };
-      xhr.send(fd);
-    });
-  };
+  return new Promise((resolve, reject) => {
+    let fd = new FormData();
+    fd.append("file", file, file.name);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.onload = () => {
+      const data = JSON.parse(xhr.response);
+      if (xhr.status === 200 && (data.error === 0 || data.error === "0")) {
+        const imgUrl = data.data;
+        resolve(imgUrl);
+      } else {
+        reject(data);
+      }
+    };
+    xhr.send(fd);
+  });
+};
 class ActApply extends Component {
   state = {
     imageUrl: "",
@@ -47,8 +48,8 @@ class ActApply extends Component {
     record: {},
     loading: false
   };
-  componentDidMount(){
-     this.getApplyData();
+  componentDidMount() {
+    this.getApplyData();
   }
 
   //获取申请记录
@@ -181,6 +182,21 @@ class ActApply extends Component {
       message.error(error.message);
     }
   };
+  print = () => {
+    var printBox = document.getElementById("applyDataBaseForm");
+    //拿到打印的区域的html内容
+    var newContent = printBox.innerHTML;
+    //将旧的页面储存起来，当打印完成后返给给页面。
+    var oldContent = document.body.innerHTML;
+    //赋值给body
+    document.body.innerHTML = newContent;
+    //执行window.print打印功能
+    window.print();
+    // 重新加载页面，以刷新数据。以防打印完之后，页面不能操作的问题
+    window.location.reload();
+    document.body.innerHTML = oldContent;
+    return false;
+  };
   getBase64 = (img, callback) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => callback(reader.result));
@@ -212,7 +228,7 @@ class ActApply extends Component {
     });
   };
   onCheck = item => {
-      console.log("aaa")
+    console.log("aaa");
     this.setState({
       page: "checkPage",
       record: item
@@ -220,7 +236,7 @@ class ActApply extends Component {
   };
   showImage = () => {
     this.setState({
-      page: "showImagePage",
+      page: "showImagePage"
     });
   };
   render() {
@@ -263,64 +279,68 @@ class ActApply extends Component {
     const pages = {
       showImagePage: <ShowImage image={applyDataBaseImage}></ShowImage>,
       checkPage: (
-        <Form
-          {...formItemLayout}
-          // onSubmit={this.handleSubmit}
-          className="applyDataBase-form"
-        >
-          <h1>参与CHASE-IBD数据库建设申请表</h1>
-          <h3>申请医疗单位</h3>
-          <Form.Item label={<span>申请人&nbsp;</span>}>
-            <span>{record.doctor}</span>
-          </Form.Item>
-          <Form.Item label={<span>所属单位&nbsp;</span>}>
-            <span>{record.hospital}</span>
-          </Form.Item>
-          <Form.Item label={<span>职称&nbsp;</span>}>
-            <span>{record.post}</span>
-          </Form.Item>
-          <Form.Item label={<span>联系电话&nbsp;</span>}>
-            <span>{record.phoneNumber}</span>
-          </Form.Item>
-          <Form.Item label={<span>E-mail&nbsp;</span>}>
-            <span>{record.email}</span>
-          </Form.Item>
-          <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
-            <span>{record.teamPeople}</span>&nbsp;&nbsp;
-            <span>{record.teamPeople2}</span>&nbsp;&nbsp;
-            <span>{record.teamPeople3}</span>&nbsp;&nbsp;
-          </Form.Item>
-          <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
-            <Checkbox.Group
-              options={options}
-              defaultValue={record.studyType}
-              onChange={this.onChangeCheckbox}
-            />
-          </Form.Item>
-          <h3>贵院目前患者数量</h3>
+        <React.Fragment>
+          <Form
+            {...formItemLayout}
+            // onSubmit={this.handleSubmit}
+            className="applyDataBase-form"
+            id="applyDataBaseForm"
+          >
+            <h1 style={{textAlign:"center"}}>参与CHASE-IBD数据库建设申请表</h1>
+            <h3 style={{textAlign:"center"}}>申请医疗单位</h3>
+            <Form.Item label={<span>申请人&nbsp;</span>}>
+              <span>{record.doctor}</span>
+            </Form.Item>
+            <Form.Item label={<span>所属单位&nbsp;</span>}>
+              <span>{record.hospital}</span>
+            </Form.Item>
+            <Form.Item label={<span>职称&nbsp;</span>}>
+              <span>{record.post}</span>
+            </Form.Item>
+            <Form.Item label={<span>联系电话&nbsp;</span>}>
+              <span>{record.phoneNumber}</span>
+            </Form.Item>
+            <Form.Item label={<span>E-mail&nbsp;</span>}>
+              <span>{record.email}</span>
+            </Form.Item>
+            <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
+              <span>{record.teamPeople}</span>&nbsp;&nbsp;
+              <span>{record.teamPeople2}</span>&nbsp;&nbsp;
+              <span>{record.teamPeople3}</span>&nbsp;&nbsp;
+            </Form.Item>
+            <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
+              <Checkbox.Group
+                options={options}
+                defaultValue={record.studyType}
+                onChange={this.onChangeCheckbox}
+              />
+            </Form.Item>
+            <h3 style={{textAlign:"center"}}>贵院目前患者数量</h3>
 
-          <Form.Item label={<span>CD患者数量&nbsp;</span>}>
-            <span>{record.CDPatientNumber}</span>
-          </Form.Item>
-          <Form.Item label={<span>UC患者数量&nbsp;</span>}>
-            <span>{record.UCPatientNumber}</span>
-          </Form.Item>
-          <Form.Item label={<span>医师执照&nbsp;</span>}>
-            <img
-              src={record.doctorPhoto}
-              alt="avatar"
-              style={{ backgroundSize: "100%" }}
-            />
-          </Form.Item>
+            <Form.Item label={<span>CD患者数量&nbsp;</span>}>
+              <span>{record.CDPatientNumber}</span>
+            </Form.Item>
+            <Form.Item label={<span>UC患者数量&nbsp;</span>}>
+              <span>{record.UCPatientNumber}</span>
+            </Form.Item>
+            <Form.Item label={<span>医师执照&nbsp;</span>}>
+              <img
+                src={record.doctorPhoto}
+                alt="avatar"
+                style={{ width: "200px", height: "200px" }}
+              />
+            </Form.Item>
+          </Form>
 
           <Button
             icon="download"
             type="primary"
             className="applyDataBase-form-print"
+            onClick={this.print}
           >
             打印
           </Button>
-        </Form>
+        </React.Fragment>
       ),
       listPage: (
         <List
@@ -379,8 +399,8 @@ class ActApply extends Component {
           // onSubmit={this.handleSubmit}
           className="applyDataBase-form"
         >
-          <h1>参与CHASE-IBD数据库建设申请表</h1>
-          <h3>申请医疗单位</h3>
+          <h1 style={{textAlign:"center"}}>参与CHASE-IBD数据库建设申请表</h1>
+          <h3 style={{textAlign:"center"}}>申请医疗单位</h3>
           <Form.Item label={<span>申请人&nbsp;</span>}>
             {getFieldDecorator("doctor", {
               rules: [
@@ -451,7 +471,7 @@ class ActApply extends Component {
               />
             )}
           </Form.Item>
-          <h3>贵院目前患者数量</h3>
+          <h3 style={{textAlign:"center"}}>贵院目前患者数量</h3>
 
           <Form.Item label={<span>CD患者数量：&nbsp;</span>}>
             {getFieldDecorator("CDNumber", {
@@ -518,7 +538,32 @@ class ActApply extends Component {
       )
     };
 
-    return <ApplyDataBase pages={pages} page={this.state.page} onBack={this.onBack} showImage={this.showImage} onApply={this.onApply}></ApplyDataBase>;
+    return (
+      <React.Fragment>
+        {/* <ReactToPrint
+          trigger={() => (
+            <Button
+            icon="download"
+            type="primary"
+            className="applyDataBase-form-print"
+          >
+            打印
+          </Button> 
+           
+          )}
+          content={() => this.componentRef}
+        /> */}
+
+        <ApplyDataBase
+          pages={pages}
+          page={this.state.page}
+          onBack={this.onBack}
+          showImage={this.showImage}
+          onApply={this.onApply}
+          ref={el => (this.componentRef = el)}
+        ></ApplyDataBase>
+      </React.Fragment>
+    );
   }
 }
 
