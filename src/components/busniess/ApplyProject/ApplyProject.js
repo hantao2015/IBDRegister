@@ -15,7 +15,11 @@ import {
   message,
   Popconfirm,
   Spin,
-  Card
+  Card,
+  Steps,
+  Popover,
+  Tag,
+  Modal
 } from "antd";
 import http from "../../../utils/api";
 import ShowImage from "../ApplyDataBase/ShowImage";
@@ -26,6 +30,11 @@ import TextArea from "antd/lib/input/TextArea";
 const applyProjectId = "620475440053";
 const suggestId = "621432069832";
 const { Meta } = Card;
+const { Step } = Steps;
+
+const customDot = (dot, { status, index }) => (
+  <Popover content={<span>{status}</span>}>{dot}</Popover>
+);
 
 class ApplyProject extends Component {
   state = {
@@ -34,11 +43,11 @@ class ApplyProject extends Component {
     page: "listPage",
     record: {},
     postilData: [],
-    loading: false
+    loading: false,
   };
-  componentDidMount() {
-    this.getApplyData();
-  }
+  componentDidMount = async () => {
+    await this.getApplyData();
+  };
 
   //获取申请记录
   getApplyData = async () => {
@@ -51,17 +60,15 @@ class ApplyProject extends Component {
         resid: applyProjectId,
         subresid: suggestId
       });
-      let data = [];
-      let postil = [];
-      // console.log("res.data[621432069832]",res.data.data)
-      res.data.data.map(item => {
-        let studyType = item.studyType && item.studyType.split(",");
-        item.studyType = studyType;
-        data.push(item);
-        console.log("res.data[621432069832]", item[621432069832]);
-      });
-
       if (res.data.Error == 0) {
+        let data = [];
+        res.data &&
+          res.data.data &&
+          res.data.data.map(item => {
+            let studyType = item.studyType && item.studyType.split(",");
+            item.studyType = studyType;
+            data.push(item);
+          });
         this.setState({
           applyList: data
         });
@@ -75,8 +82,6 @@ class ApplyProject extends Component {
   };
 
   handleSubmit = (e, type) => {
-    // console.log("e",e,type)
-    // e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         this.onSubmit(values, type);
@@ -94,6 +99,7 @@ class ApplyProject extends Component {
       });
       if (res.data.Error == 0) {
         message.success("提交成功");
+        await this.getApplyData();
       }
     } catch (error) {
       message.error(error.message);
@@ -177,13 +183,34 @@ class ApplyProject extends Component {
       page: "applyPage"
     });
   };
+  onLookSchedule = record => {
+    const modal = Modal.success({
+      title: "进度查询",
+      width: 500,
+      content: (
+        <div style={{marginTop:"20px"}}>
+          <div style={{marginBottom:"20px"}}>课题名称：{record.task}</div>
+          <Steps
+            current={
+              record.status === "通过" || record.status === "拒绝" ? 2 : 1
+            }
+            progressDot={customDot}
+          >
+            <Step title="提交报告" />
+            <Step title="审核" />
+            <Step title="完成" />
+          </Steps>
+          ,
+        </div>
+      )
+    });
+  };
   onBack = () => {
     this.setState({
       page: "listPage"
     });
   };
   onCheck = item => {
-    console.log("aaa");
     this.setState({
       page: "checkPage",
       record: item
@@ -265,34 +292,34 @@ class ApplyProject extends Component {
           >
             <div className="applyProject-form-contain">
               <div className="applyProject-form-contain-info">
-                <h1 style={{textAlign:"center"}}>CHASE-IBD专项课题申请表</h1>
-                <h3 style={{textAlign:"center"}}>基本信息</h3>
+                <h1 style={{ textAlign: "center" }}>CHASE-IBD专项课题申请表</h1>
+                <h3 style={{ textAlign: "center" }}>基本信息</h3>
                 <Form.Item label={<span>课题名称&nbsp;</span>}>
-                  <span>{record.doctor}</span>
+                  <span>{record.task}</span>
                 </Form.Item>
                 <Form.Item label={<span>课题负责人&nbsp;</span>}>
-                  <span>{record.hospital}</span>
+                  <span>{record.taskPrincipal}</span>
                 </Form.Item>
                 <Form.Item label={<span>申请人&nbsp;</span>}>
-                  <span>{record.post}</span>
+                  <span>{record.doctor}</span>
                 </Form.Item>
                 <Form.Item label={<span>所属单位&nbsp;</span>}>
-                  <span>{record.phoneNumber}</span>
+                  <span>{record.hospital}</span>
                 </Form.Item>
                 <Form.Item label={<span>职称&nbsp;</span>}>
-                  <span>{record.email}</span>
+                  <span>{record.post}</span>
                 </Form.Item>
                 <Form.Item label={<span>联系电话&nbsp;</span>}>
-                  <span>{record.email}</span>
+                  <span>{record.phoneNumber}</span>
                 </Form.Item>
                 <Form.Item label={<span>E-mail&nbsp;</span>}>
                   <span>{record.email}</span>
                 </Form.Item>
                 <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
-                  <span>{record.email}</span>
+                  <span>{record.inlandUnit}</span>
                 </Form.Item>
                 <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
-                  <span>{record.email}</span>
+                  <span>{record.foreignUnit}</span>
                 </Form.Item>
                 {/* <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
             <span>{record.teamPeople}</span>&nbsp;&nbsp;
@@ -306,7 +333,7 @@ class ApplyProject extends Component {
               onChange={this.onChangeCheckbox}
             />
           </Form.Item> */}
-                <h3 style={{textAlign:"center"}}>研究内容</h3>
+                <h3 style={{ textAlign: "center" }}>研究内容</h3>
                 <Form.Item label={<span>研究的理由&nbsp;</span>}>
                   <span>{record.studyReason}</span>
                 </Form.Item>
@@ -417,22 +444,32 @@ class ApplyProject extends Component {
         </React.Fragment>
       ),
       listPage: (
-        <List
-          className="applyProject-content-list"
-          itemLayout="horizontal"
-          dataSource={applyList}
-          renderItem={item => (
-            <List.Item
-              actions={[
-                <a
-                  key="list-loadmore-edit"
-                  onClick={() => {
-                    this.onCheck(item);
-                  }}
-                >
-                  查看
-                </a>,
-                <Popconfirm
+        <React.Fragment>
+          <List
+            className="applyProject-content-list"
+            itemLayout="horizontal"
+            dataSource={applyList}
+            renderItem={item => (
+              <List.Item
+                actions={[
+                  <a
+                    key="list-loadmore-edit"
+                    onClick={() => {
+                      this.onCheck(item);
+                    }}
+                  >
+                    查看
+                  </a>,
+                  item.isSubmit === "Y" ? (
+                    <a
+                      key="list-loadmore-edit"
+                      onClick={() => {
+                        this.onLookSchedule(item);
+                      }}
+                    >
+                      进度查询
+                    </a>
+                  ) :  <Popconfirm
                   title="你确定要提交吗"
                   onConfirm={() => {
                     this.onSubmitRecord(item);
@@ -442,33 +479,62 @@ class ApplyProject extends Component {
                 >
                   <a key="list-loadmore-edit">提交</a>
                 </Popconfirm>
-              ]}
-            >
-              {/* <Skeleton avatar title={false} loading={item.doctor} active> */}
-              <List.Item.Meta
-                // avatar={
-                //   <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                // }
-                title={
-                  <React.Fragment>
-                    <a className="applyProject-content-list-word" href="#">
-                      课题名称:{item.task}
-                    </a>
-                    <a className="applyProject-content-list-word" href="#">
-                      所属单位:{item.hospital}
-                    </a>
-                  </React.Fragment>
-                }
-                description={item.status}
-              />
-              <div className="applyProject-content-list-word">
-                申请日期：{item.doctor}
-              </div>
-              <div>申请日期：{item.REC_CRTTIME}</div>
-              {/* </Skeleton> */}
-            </List.Item>
-          )}
-        />
+                ]}
+              >
+                {/* <Skeleton avatar title={false} loading={item.doctor} active> */}
+                <List.Item.Meta
+                  // avatar={
+                  //   <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                  // }
+                  title={
+                    <React.Fragment>
+                      <a className="applyProject-content-list-word" href="#">
+                        课题名称:{item.task}
+                      </a>
+                      <a className="applyProject-content-list-word" href="#">
+                        所属单位:{item.hospital}
+                      </a>
+                    </React.Fragment>
+                  }
+                  description={
+                    <React.Fragment>
+                      <Tag
+                        color={
+                          item.status === "通过"
+                            ? "geekblue"
+                            : item.status === "拒绝"
+                            ? "red"
+                            : "green"
+                        }
+                      >
+                        {item.status}
+                      </Tag>{" "}
+                    </React.Fragment>
+                  }
+                />
+
+                <div>申请日期：{item.REC_CRTTIME}</div>
+                {/* </Skeleton> */}
+              </List.Item>
+            )}
+          />
+        </React.Fragment>
+      ),
+      schedulePage: (
+        <div>
+          <h1 style={{ textAlign: "center" }}>{record.task}</h1>
+          <Steps
+            current={
+              record.status === "通过" || record.status === "拒绝" ? 2 : 1
+            }
+            progressDot={customDot}
+          >
+            <Step title="提交报告" />
+            <Step title="审核" />
+            <Step title="完成" />
+          </Steps>
+          ,
+        </div>
       ),
       applyPage: (
         <Form
@@ -478,8 +544,8 @@ class ApplyProject extends Component {
         >
           <div className="applyProject-form-contain">
             <div className="applyProject-form-contain-info">
-              <h1 style={{textAlign:"center"}}>CHASE-IBD专项课题申请表</h1>
-              <h3 style={{textAlign:"center"}}>基本信息</h3>
+              <h1 style={{ textAlign: "center" }}>CHASE-IBD专项课题申请表</h1>
+              <h3 style={{ textAlign: "center" }}>基本信息</h3>
 
               <Form.Item label={<span>课题名称&nbsp;</span>}>
                 {getFieldDecorator("task", {
@@ -580,7 +646,7 @@ class ApplyProject extends Component {
                   ]
                 })(<Input />)}
               </Form.Item>
-              <h3 style={{textAlign:"center"}}>研究内容</h3>
+              <h3 style={{ textAlign: "center" }}>研究内容</h3>
               <Form.Item label={<span>研究的理由&nbsp;</span>}>
                 {getFieldDecorator("studyReason", {
                   rules: [

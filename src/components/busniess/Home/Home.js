@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "./Home.less";
-import { Menu, Icon, Button, Tabs, Upload, Popover ,Alert} from "antd";
-import logo from "../../../assets/images/1556898894199.jpg";
+import { Menu, Icon, Button, Tabs, Upload, Popover, Alert } from "antd";
+import logo from "../../../assets/images/logo.jpg";
 import NoticeList from "../NoticeList";
 import ApplyDataBase from "../ApplyDataBase";
 import ApplyProject from "../ApplyProject";
@@ -16,9 +16,9 @@ class Home extends Component {
     collapsed: false,
     imageUrl: "",
     userInfo: {},
-    currentItem:1
+    currentItem: 1
   };
-  constructor(props){
+  constructor(props) {
     super(props);
   }
   toggleCollapsed = () => {
@@ -26,20 +26,18 @@ class Home extends Component {
       collapsed: !this.state.collapsed
     });
   };
-  componentDidMount = async() => {
+  componentDidMount = async () => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    const currentItem = JSON.parse(localStorage.getItem("currentItem"))
-    if(currentItem){
-
-    this.setState({
-      userInfo,
-      currentItem
-    });
-    }else{
-
-    this.setState({
-      userInfo
-    });
+    const currentItem = JSON.parse(localStorage.getItem("currentItem"));
+    if (currentItem) {
+      this.setState({
+        userInfo,
+        currentItem
+      });
+    } else {
+      this.setState({
+        userInfo
+      });
     }
   };
   getBase64 = (img, callback) => {
@@ -62,45 +60,54 @@ class Home extends Component {
       );
     }
   };
+  //退出
   logout = () => {
-    console.log("logout",this.props)
+    console.log("logout", this.props);
     localStorage.removeItem("userInfo");
-    localStorage.removeItem('currentItem');
+    localStorage.removeItem("currentItem");
     this.props.history.replace({
-      pathname:"/"
-    })
-  }
-  onMenuDetail = (name) => {
-    if(name === 'home'){
-      localStorage.setItem("currentItem",1)
+      pathname: "/"
+    });
+  };
+  //切换路由
+  onMenuDetail = name => {
+    if (name === "home") {
+      localStorage.setItem("currentItem", 1);
       this.setState({
-        currentItem:1
-      })
-    }else{
-      localStorage.setItem("currentItem",2)
+        currentItem: 1
+      });
+    } else {
+      localStorage.setItem("currentItem", 2);
       this.setState({
-        currentItem:2
-      })
+        currentItem: 2
+      });
     }
     this.props.history.push({
-      pathname:`/${name}`
-    })
-  }
+      pathname: `/${name}`
+    });
+  };
   render() {
     const uploadButton = (
       <div>
-        {/* <Icon type={this.state.loading ? 'loading' : 'plus'} /> */}
         <div className="ant-upload-text">请上传照片</div>
       </div>
     );
     const content = (
       <React.Fragment>
-      {/* <div> <Button type="primary" icon="download" size='small' >退出</Button></div> */}
-      <div style={{margin:"10px 0 "}}> <Button type="primary" icon="logout" size='small' onClick={this.logout}>退出</Button>
-      </div>
-       </React.Fragment>
-    )
-    const { imageUrl, userInfo ,currentItem} = this.state;
+        <div style={{ margin: "10px 0 " }}>
+          {" "}
+          <Button
+            type="primary"
+            icon="logout"
+            size="small"
+            onClick={this.logout}
+          >
+            退出
+          </Button>
+        </div>
+      </React.Fragment>
+    );
+    const { imageUrl, userInfo, currentItem } = this.state;
     return (
       <div className="home">
         <div className="home-left">
@@ -115,17 +122,21 @@ class Home extends Component {
             <div className="home-left-logo">
               <img className="home-left-logo-img" src={logo}></img>
             </div>
-            <Menu.Item key="1" onClick={
-              () => {
-                this.onMenuDetail('home')
-              }
-            }>
+            <Menu.Item
+              key="1"
+              onClick={() => {
+                this.onMenuDetail("home");
+              }}
+            >
               <Icon type="pie-chart" />
               <span>CHASE-IBD数据库</span>
             </Menu.Item>
-            <Menu.Item key="2" onClick={() => {
-              this.onMenuDetail('menuCommittee')
-            }}>
+            <Menu.Item
+              key="2"
+              onClick={() => {
+                this.onMenuDetail("menuCommittee");
+              }}
+            >
               <Icon type="desktop" />
               <span>数据库委员会</span>
             </Menu.Item>
@@ -134,11 +145,8 @@ class Home extends Component {
         <div className="home-right">
           <div className="home-right-top">
             <div className="home-right-top-tabs">
-
-        {/* <Route exact path='/' component={Login}></Route> */}
-        <Route  path='/home' component={MenuDataBase}></Route>
-        <Route  path='/menuCommittee' component={MenuCommittee}></Route>
-           {/* <MenuDataBase></MenuDataBase> */}
+              <Route path="/home" component={MenuDataBase}></Route>
+              <Route path="/menuCommittee" component={MenuCommittee}></Route>
             </div>
 
             <div className="home-right-top-user">
@@ -156,13 +164,12 @@ class Home extends Component {
                   uploadButton
                 )}
               </Upload> */}
-            <Popover content={content} placement="bottom" >
-                <div >
+              <Popover content={content} placement="bottom">
+                <div>
                   <Icon type="user" style={{ fontSize: "20px" }} />
                 </div>
-                <div >{userInfo.Data}</div>
-                </Popover>
-              {/* <div> <Icon type="logout" style={{fontSize:"20px"}} /></div> */}
+                <div>{userInfo.Data}</div>
+              </Popover>
             </div>
           </div>
           <div className="home-right-content">

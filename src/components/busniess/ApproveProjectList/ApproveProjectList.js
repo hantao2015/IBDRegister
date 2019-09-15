@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import { Modal, Tag, Button, Table, message, Spin, Form, Input } from "antd";
 import "./ApproveProjectList.less";
 import http from "../../../utils/api";
-const applyProjectId = "620475440053";
+import CommitCard from "../ApplyProject/CommitCard";
+const applyProjectId = "621790809693"; //研究项目申请表-审核
 const suggestId = "621432069832";
+
 const { TextArea } = Input;
 
 class ApproveProjectList extends React.Component {
@@ -15,6 +17,7 @@ class ApproveProjectList extends React.Component {
     visible: false
   };
   componentDidMount = async () => {
+    http().clearCache();
     await this.getData();
   };
   componentWillUnmount() {
@@ -23,7 +26,7 @@ class ApproveProjectList extends React.Component {
       return;
     };
   }
-  onCheck = (record) => {
+  onCheck = record => {
     this.setState({
       page: "checkPage",
       record
@@ -34,18 +37,52 @@ class ApproveProjectList extends React.Component {
       page: "listPage"
     });
   };
-  handleCancel =  () => {
+  handleCancel = () => {
     this.setState({
       visible: false
     });
-  }
+  };
   onSuggest = () => {
     this.setState({
       visible: true
     });
   };
+  onAgreeOrReject = async type => {
+    let res;
+    let data;
+    if (type === 1) {
+      data = [
+        {
+          ...this.state.record,
+          isPass: "Y"
+        }
+      ];
+    } else {
+      data = [
+        {
+          ...this.state.record,
+          isPass: "N"
+        }
+      ];
+    }
+    try {
+      res = await http().modifyRecords({
+        resid: applyProjectId,
+        data
+      });
+      if (res.data.Error === 0) {
+        message.success("操作成功");
+      }
+      this.setState({
+        page: "listPage"
+      });
+      await this.getData();
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
   submitSuggest = async e => {
-    const {record} = this.state;
+    const { record } = this.state;
     this.props.form.validateFieldsAndScroll(async (err, values) => {
       if (err) {
         return;
@@ -54,7 +91,7 @@ class ApproveProjectList extends React.Component {
       let data = [
         {
           suggest: values.suggest,
-          projectId:record.REC_ID
+          projectId: record.REC_ID
         }
       ];
       try {
@@ -64,6 +101,8 @@ class ApproveProjectList extends React.Component {
         });
         if (res.data.Error === 0) {
           message.success("添加成功");
+          this.onBack();
+          await this.getData();
         }
       } catch (error) {
         message.error(error.message);
@@ -79,10 +118,11 @@ class ApproveProjectList extends React.Component {
     });
     let res;
     try {
-      res = await http().getTable({
-        resid: applyProjectId
+      res = await http().getTableNew({
+        resid: applyProjectId,
+        subresid: suggestId
       });
-      if (res.data.error === 0) {
+      if (res.data.Error === 0) {
         this.setState({
           data: res.data.data
         });
@@ -121,68 +161,66 @@ class ApproveProjectList extends React.Component {
     const columns = [
       {
         title: "序号",
-        dataIndex: "name",
-        key: "name",
-        width:150,
-        render:(data,index)=>{
-          console.log("data",data,index)
-        }
+        dataIndex: "number",
+        key: "number",
+        width: 80
+      },
+      {
+        title: "课题名称",
+        dataIndex: "task",
+        key: "task",
+        width: 150
       },
       {
         title: "申请时间",
         dataIndex: "applyTime",
         key: "applyTime",
-        width:150
+        width: 150
       },
       {
         title: "所属单位",
         dataIndex: "hospital",
         key: "hospital",
-        width:150
+        width: 150
       },
       {
         title: "申请人",
         dataIndex: "doctor",
         key: "doctor",
-        width:150
+        width: 150
       },
       {
-        title: "研究类型",
-        dataIndex: "studyType",
-        key: "studyType",
-        width:150
+        title: "审批状态",
+        dataIndex: "status",
+        key: "status",
+        width: 150,
+        render: data => {
+          return (
+            <Tag
+              color={
+                data === "通过" ? "geekblue" : data === "拒绝" ? "red" : "green"
+              }
+            >
+              {data}
+            </Tag>
+          );
+        }
       },
-      // {
-      //   title: 'Tags',
-      //   key: 'tags',
-      //   dataIndex: 'tags',
-      //   render: tags => (
-      //     <span>
-      //       {tags.map(tag => {
-      //         let color = tag.length > 5 ? 'geekblue' : 'green';
-      //         if (tag === 'loser') {
-      //           color = 'volcano';
-      //         }
-      //         return (
-      //           <Tag color={color} key={tag}>
-      //             {tag.toUpperCase()}
-      //           </Tag>
-      //         );
-      //       })}
-      //     </span>
-      //   ),
-      // },
       {
         title: "操作",
         key: "action",
         render: (text, record) => (
           <span>
-            <a onClick={() => {
-              this.onCheck(record)
-            }}>查看/建议</a>
+            <a
+              onClick={() => {
+                this.onCheck(record);
+              }}
+            >
+              查看/建议
+            </a>
           </span>
         ),
-        width:150
+        width: 150
       }
     ];
     const checkPage = (
@@ -201,30 +239,36 @@ class ApproveProjectList extends React.Component {
             返回
           </Button>
         ) : null}
-        <div className="approveList-btns">
-          <Button
-            className="approveList-btn"
-            type="primary"
-            onClick={this.onBack}
-          >
-            同意
-          </Button>
+        {!record.isPass ? (
+          <div className="approveList-btns">
+            <Button
+              className="approveList-btn"
+              type="primary"
+              onClick={() => {
+                this.onAgreeOrReject(1);
+              }}
+            >
+              同意
+            </Button>
 
-          <Button
-            className="approveList-btn"
-            type="danger"
-            onClick={this.onBack}
-          >
-            拒绝
-          </Button>
-          <Button
-            className="approveList-btn"
-            type="primary"
-            onClick={this.onSuggest}
-          >
-            建议
-          </Button>
-        </div>
+            <Button
+              className="approveList-btn"
+              type="danger"
+              onClick={() => {
+                this.onAgreeOrReject(2);
+              }}
+            >
+              拒绝
+            </Button>
+            <Button
+              className="approveList-btn"
+              type="primary"
+              onClick={this.onSuggest}
+            >
+              建议
+            </Button>
+          </div>
+        ) : null}
         <div className="approveProjectList-form-contain">
           <div className="approveProjectList-form-contain-info">
             <h1>CHASE-IBD专项课题申请表</h1>
@@ -271,51 +315,96 @@ class ApproveProjectList extends React.Component {
             <h3>研究内容</h3>
 
             <Form.Item label={<span>研究的理由&nbsp;</span>}>
-                <span>{record.studyReason}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究区域&nbsp;</span>}>
-                <span>{record.studyArea}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>}>
-                <span>{record.studyTarget}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
-                <span>{record.studyLast}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;</span>}>
-                <span>{record.studyDescription}</span>
-              </Form.Item>
-              <Form.Item label={<span>项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;</span>}>
-                <span>{record.studySelected}</span>
-              </Form.Item>
-              <Form.Item label={<span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>}>
-                <span>{record.studyLast}</span>
-              </Form.Item>
-              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
-                <span>{record.studyAssess}</span>
-              </Form.Item>
-              <Form.Item label={<span>实验室检查：检查具体指标参数&nbsp;</span>}>
-                <span>{record.studyCheck}</span>
-              </Form.Item>
-              <Form.Item label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}>
-                <span>{record.studyAssess}</span>
-              </Form.Item>
-              <Form.Item label={<span>统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;</span>}>
-                <span>{record.staticMethod}</span>
-              </Form.Item>
-              <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
-                <span>{record.standard}</span>
-              </Form.Item>
-              <Form.Item label={<span>样本量的确定&nbsp;</span>}>
-                <span>{record.sure}</span>
-              </Form.Item>
-              <Form.Item label={<span>伦理委员会&nbsp;</span>}>
-                <span>{record.committee}</span>
-              </Form.Item>
-              <Form.Item label={<span>参考资料&nbsp;</span>}>
-                <span>{record.referenceData}</span>
-              </Form.Item>
+              <span>{record.studyReason}</span>
+            </Form.Item>
+            <Form.Item label={<span>研究区域&nbsp;</span>}>
+              <span>{record.studyArea}</span>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>研究目标（主要目标，次要目标，附加目标）&nbsp;</span>
+              }
+            >
+              <span>{record.studyTarget}</span>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>
+              }
+            >
+              <span>{record.studyLast}</span>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>
+                  研究设计与描述（研究描述，研究周期，研究设计，剂量和终点的合理性）&nbsp;
+                </span>
+              }
+            >
+              <span>{record.studyDescription}</span>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>
+                  项目入选（入选标准，排除标准包括药物，治疗和饮食）&nbsp;
+                </span>
+              }
+            >
+              <span>{record.studySelected}</span>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>研究终点（主要终点，次要终点，附加终点）&nbsp;</span>
+              }
+            >
+              <span>{record.studyLast}</span>
+            </Form.Item>
+            <Form.Item
+              label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}
+            >
+              <span>{record.studyAssess}</span>
+            </Form.Item>
+            <Form.Item label={<span>实验室检查：检查具体指标参数&nbsp;</span>}>
+              <span>{record.studyCheck}</span>
+            </Form.Item>
+            <Form.Item
+              label={<span>评估（疗效评估，安全评估，其他评估）&nbsp;</span>}
+            >
+              <span>{record.studyAssess}</span>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>
+                  统计方法（统计分析计划，人口统计学和其他基线特征分析，疗效分析，药代动力学分析，药效学分析，安全分析）&nbsp;
+                </span>
+              }
+            >
+              <span>{record.staticMethod}</span>
+            </Form.Item>
+            <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
+              <span>{record.standard}</span>
+            </Form.Item>
+            <Form.Item label={<span>样本量的确定&nbsp;</span>}>
+              <span>{record.sure}</span>
+            </Form.Item>
+            <Form.Item label={<span>伦理委员会&nbsp;</span>}>
+              <span>{record.committee}</span>
+            </Form.Item>
+            <Form.Item label={<span>参考资料&nbsp;</span>}>
+              <span>{record.referenceData}</span>
+            </Form.Item>
           </div>
+          {record["621432069832"] ? (
+            <div className="applyProject-form-contain-notice">
+              <span>来自数委会的批注</span>
+              {record["621432069832"] &&
+                record["621432069832"].map(item => {
+                  return (
+                    <CommitCard key={item.REC_ID} data={item}></CommitCard>
+                  );
+                })}
+            </div>
+          ) : null}
         </div>{" "}
         <Modal
           title="建议"
@@ -369,7 +458,7 @@ class ApproveProjectList extends React.Component {
               className="approveProjectList-table"
               columns={columns}
               dataSource={data}
-              scroll={{ x: 1000, y: 'calc(100vh - 220px)' }} 
+              scroll={{ x: 1000, y: "calc(100vh - 220px)" }}
             />
           </Spin>
         ) : (

@@ -10,8 +10,7 @@ import {
   Form,
   Input,
   Spin,
-  Modal,
-  
+  Modal
 } from "antd";
 import "./EditNotice.less";
 import ApplyDataBase from "../ApplyDataBase";
@@ -29,56 +28,52 @@ const formItemLayout = {
   }
 };
 const columns = props => {
-  const { onEdit,onPublish,data } = props;
+  const { onEdit, onPublish, data } = props;
   return [
     {
       title: "序号",
-      dataIndex: "name",
-      key: "name",
-      width:150
+      dataIndex: "number",
+      key: "number",
+      width: 80
     },
     {
       title: "标题",
       dataIndex: "title",
       key: "title",
-      width:250,
+      width: 250,
       render: text => <a>{text}</a>
     },
     {
       title: "消息内容",
       dataIndex: "content",
       key: "content",
-      width:400
+      width: 400
     },
     {
       title: "发布者",
-      dataIndex: "doctor",
-      key: "doctor",
-      width:150
+      dataIndex: "publishPerson",
+      key: "publishPerson",
+      width: 150
+    },
+    {
+      title: "发布时间",
+      dataIndex: "publishTime",
+      key: "publishTime",
+      width: 150
     },
     {
       title: "状态",
       dataIndex: "status",
       key: "status",
       render: data => (
-            // <span>
-            //   {/* {tags.map(tag => {
-            //     let color = tag.length > 5 ? 'geekblue' : 'green';
-            //     if (tag === 'loser') {
-            //       color = 'volcano';
-            //     } */}
-            //     {data.map((item) => {
-                  <Tag color={data === '已发布'?"geekblue":"green"} >
-                    {data}
-                  </Tag>
-            //     })}
-            //  </span>
-          ),
-          width:150
+        <Tag color={data === "已发布" ? "geekblue" : "green"}>{data}</Tag>
+      ),
+      width: 150
     },
     {
       title: "操作",
       key: "action",
+      width: 150,
       render: (text, record) => (
         <span>
           <a
@@ -89,9 +84,23 @@ const columns = props => {
             修改
           </a>
           <Divider type="vertical" />
-          <a onClick={() => {
-            onPublish(record)
-          }}>发布</a>
+          {record.isPublish === "Y" ? (
+            <a
+              onClick={() => {
+                onPublish(record, 1);
+              }}
+            >
+              取消发布
+            </a>
+          ) : (
+            <a
+              onClick={() => {
+                onPublish(record, 2);
+              }}
+            >
+              发布
+            </a>
+          )}
         </span>
       )
     }
@@ -130,8 +139,8 @@ class EditNotice extends React.Component {
           resid: noticeId,
           data
         });
-        if(res.data.Error === 0){
-          message.success("添加成功")
+        if (res.data.Error === 0) {
+          message.success("添加成功");
           this.setState({
             visible: false
           });
@@ -165,22 +174,24 @@ class EditNotice extends React.Component {
       page: "listPage"
     });
   };
-  onPublish = async(record) => {
-    record.isPublish = 'Y'
+  onPublish = async (record, type) => {
+    if (type == 1) {
+      record.isPublish = "N";
+    } else {
+      record.isPublish = "Y";
+    }
     let res;
     try {
       res = await http().modifyRecords({
-        resid:noticeId,
-        data:[record]
-      })
-      if(res.data.Error === 0){
-        message.success("发布成功")
+        resid: noticeId,
+        data: [record]
+      });
+      if (res.data.Error === 0) {
+        message.success("发布成功");
         await this.getData();
       }
-    } catch (error) {
-      
-    }
-  }
+    } catch (error) {}
+  };
   renderContent = () => {
     let page = this.state.page;
     switch (page) {
@@ -210,11 +221,12 @@ class EditNotice extends React.Component {
               onEdit: record => {
                 this.onEdit(record);
               },
-              onPublish:record=>{
-                this.onPublish(record)
-              },data:data},)
-            }
-            scroll={{ x: 1000, y: 'calc(100vh - 260px)'  }} 
+              onPublish: (record, type) => {
+                this.onPublish(record, type);
+              },
+              data: data
+            })}
+            scroll={{ x: 1000, y: "calc(100vh - 260px)" }}
             dataSource={data}
           />
           <Modal
@@ -228,9 +240,13 @@ class EditNotice extends React.Component {
               <Button key="back" onClick={this.handleCancel}>
                 取消
               </Button>,
-              <Button key="submit" type="primary" onClick={()=>{
-                this.save(1)
-              }}>
+              <Button
+                key="submit"
+                type="primary"
+                onClick={() => {
+                  this.save(1);
+                }}
+              >
                 保存
               </Button>,
               <Button key="submit" type="primary" onClick={this.publish}>
@@ -330,30 +346,8 @@ class EditNotice extends React.Component {
       </div>
     );
   };
-  // renderCheckPage = () => {
-  //   const { getFieldDecorator } = this.props.form;
-  //   let record = this.state.record;
-  //   return (
-  //     <div className="editNotice">
-  //       <Button type="primary" className="editNotice-add" onClick={this.onBack}>
-  //         返回
-  //       </Button>
-
-  //     </div>
-  //   );
-  // };
-  // renderAddPage = () => {
-  //   const { getFieldDecorator } = this.props.form;
-  //   return (
-  //     <div className="editNotice">
-  //       <Button type="primary" className="editNotice-add" onClick={this.onBack}>
-  //         返回
-  //       </Button>
-
-  //     </div>
-  //   );
-  // };
   componentDidMount = async () => {
+    http().clearCache();
     await this.getData();
   };
   getData = async () => {
@@ -365,19 +359,20 @@ class EditNotice extends React.Component {
       res = await http().getTable({
         resid: noticeId
       });
-      // if(res.data.error === 0){
-      this.setState({
-        data: res.data.data
-      });
-      // }
-    } catch (error) {}
+      if (res.data.Error === 0) {
+        this.setState({
+          data: res.data.data
+        });
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
     this.setState({
       spin: false
     });
   };
   onAdd = () => {
     this.setState({
-      // page: "addPage",
       visible: true
     });
   };

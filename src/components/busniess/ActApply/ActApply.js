@@ -14,13 +14,22 @@ import {
   Avatar,
   message,
   Popconfirm,
-  Spin
+  Spin,
+  Tag,
+  Modal,
+  Steps,
+  Popover
 } from "antd";
 import http from "../../../utils/api";
 import ShowImage from "../ApplyDataBase/ShowImage";
 import ReactToPrint from "react-to-print";
 import applyDataBaseImage from "../../../assets/images/applyDataBase.jpg";
 const applyDataBaseId = "620384838453";
+const { Step } = Steps;
+
+const customDot = (dot, { status, index }) => (
+  <Popover content={<span>{status}</span>}>{dot}</Popover>
+);
 
 const uploadFile = (file, url) => {
   return new Promise((resolve, reject) => {
@@ -62,14 +71,14 @@ class ActApply extends Component {
       res = await http().getTable({
         resid: applyDataBaseId
       });
-      console.log("res.data.data", res.data.data);
       let data = [];
-
-      res.data.data.map(item => {
-        let studyType = item.studyType && item.studyType.split(",");
-        item.studyType = studyType;
-        data.push(item);
-      });
+      res.data &&
+        res.data.data &&
+        res.data.data.map(item => {
+          let studyType = item.studyType && item.studyType.split(",");
+          item.studyType = studyType;
+          data.push(item);
+        });
       if (res.data.error == 0) {
         this.setState({
           applyList: data
@@ -84,8 +93,6 @@ class ActApply extends Component {
   };
 
   handleSubmit = (e, type) => {
-    // console.log("e",e,type)
-    // e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         this.onSubmit(values, type);
@@ -103,6 +110,7 @@ class ActApply extends Component {
       });
       if (res.data.Error == 0) {
         message.success("提交成功");
+        await this.getApplyData();
       }
     } catch (error) {
       message.error(error.message);
@@ -239,6 +247,29 @@ class ActApply extends Component {
       page: "showImagePage"
     });
   };
+
+  //查看进度
+  onLookSchedule = record => {
+    const modal = Modal.success({
+      title: "进度查询",
+      width: 500,
+      content: (
+        <div style={{ marginTop: "20px" }}>
+          <Steps
+            current={
+              record.status === "通过" || record.status === "拒绝" ? 2 : 1
+            }
+            progressDot={customDot}
+          >
+            <Step title="提交报告" />
+            <Step title="审核" />
+            <Step title="完成" />
+          </Steps>
+          ,
+        </div>
+      )
+    });
+  };
   render() {
     const { getFieldDecorator } = this.props.form;
     const { imageUrl, applyList, loading, page, record } = this.state;
@@ -286,8 +317,10 @@ class ActApply extends Component {
             className="applyDataBase-form"
             id="applyDataBaseForm"
           >
-            <h1 style={{textAlign:"center"}}>参与CHASE-IBD数据库建设申请表</h1>
-            <h3 style={{textAlign:"center"}}>申请医疗单位</h3>
+            <h1 style={{ textAlign: "center" }}>
+              参与CHASE-IBD数据库建设申请表
+            </h1>
+            <h3 style={{ textAlign: "center" }}>申请医疗单位</h3>
             <Form.Item label={<span>申请人&nbsp;</span>}>
               <span>{record.doctor}</span>
             </Form.Item>
@@ -315,7 +348,7 @@ class ActApply extends Component {
                 onChange={this.onChangeCheckbox}
               />
             </Form.Item>
-            <h3 style={{textAlign:"center"}}>贵院目前患者数量</h3>
+            <h3 style={{ textAlign: "center" }}>贵院目前患者数量</h3>
 
             <Form.Item label={<span>CD患者数量&nbsp;</span>}>
               <span>{record.CDPatientNumber}</span>
@@ -358,16 +391,28 @@ class ActApply extends Component {
                 >
                   查看
                 </a>,
-                <Popconfirm
-                  title="你确定要提交吗"
-                  onConfirm={() => {
-                    this.onSubmitRecord(item);
-                  }}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <a key="list-loadmore-edit">提交</a>
-                </Popconfirm>
+                ,
+                item.isSubmit === "Y" ? (
+                  <a
+                    key="list-loadmore-edit"
+                    onClick={() => {
+                      this.onLookSchedule(item);
+                    }}
+                  >
+                    进度查询
+                  </a>
+                ) : (
+                  <Popconfirm
+                    title="你确定要提交吗"
+                    onConfirm={() => {
+                      this.onSubmitRecord(item);
+                    }}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <a key="list-loadmore-edit">提交</a>
+                  </Popconfirm>
+                )
               ]}
             >
               {/* <Skeleton avatar title={false} loading={item.doctor} active> */}
@@ -385,7 +430,19 @@ class ActApply extends Component {
                     </a>
                   </React.Fragment>
                 }
-                description="草稿"
+                description={
+                  <Tag
+                    color={
+                      item.approveStatus === "通过"
+                        ? "geekblue"
+                        : item.approveStatus === "拒绝"
+                        ? "red"
+                        : "green"
+                    }
+                  >
+                    {item.approveStatus}
+                  </Tag>
+                }
               />
               <div>申请日期：{item.REC_CRTTIME}</div>
               {/* </Skeleton> */}
@@ -399,8 +456,8 @@ class ActApply extends Component {
           // onSubmit={this.handleSubmit}
           className="applyDataBase-form"
         >
-          <h1 style={{textAlign:"center"}}>参与CHASE-IBD数据库建设申请表</h1>
-          <h3 style={{textAlign:"center"}}>申请医疗单位</h3>
+          <h1 style={{ textAlign: "center" }}>参与CHASE-IBD数据库建设申请表</h1>
+          <h3 style={{ textAlign: "center" }}>申请医疗单位</h3>
           <Form.Item label={<span>申请人&nbsp;</span>}>
             {getFieldDecorator("doctor", {
               rules: [
@@ -471,7 +528,7 @@ class ActApply extends Component {
               />
             )}
           </Form.Item>
-          <h3 style={{textAlign:"center"}}>贵院目前患者数量</h3>
+          <h3 style={{ textAlign: "center" }}>贵院目前患者数量</h3>
 
           <Form.Item label={<span>CD患者数量：&nbsp;</span>}>
             {getFieldDecorator("CDNumber", {
@@ -539,30 +596,14 @@ class ActApply extends Component {
     };
 
     return (
-      <React.Fragment>
-        {/* <ReactToPrint
-          trigger={() => (
-            <Button
-            icon="download"
-            type="primary"
-            className="applyDataBase-form-print"
-          >
-            打印
-          </Button> 
-           
-          )}
-          content={() => this.componentRef}
-        /> */}
-
-        <ApplyDataBase
-          pages={pages}
-          page={this.state.page}
-          onBack={this.onBack}
-          showImage={this.showImage}
-          onApply={this.onApply}
-          ref={el => (this.componentRef = el)}
-        ></ApplyDataBase>
-      </React.Fragment>
+      <ApplyDataBase
+        pages={pages}
+        page={this.state.page}
+        onBack={this.onBack}
+        showImage={this.showImage}
+        onApply={this.onApply}
+        ref={el => (this.componentRef = el)}
+      ></ApplyDataBase>
     );
   }
 }

@@ -48,7 +48,7 @@ class NoticeList extends Component {
         <h2>最新通知</h2>
         <Alert
           message={currentNotice.title}
-          description={<div><span>{currentNotice.content}</span><span className='noticeList-time'>{currentNotice.noticeDate}</span></div>}
+          description={<div><span>{currentNotice.content}</span><span className='noticeList-time'>{currentNotice.publishTime}</span></div>}
           type="info"
           showIcon
           // closeText="Close"
@@ -66,7 +66,7 @@ class NoticeList extends Component {
           >
             {historyNotice.map((item,index) => {
               return (
-                <Panel header={<div><span>{item.title}</span><span className='noticeList-time'>{item.noticeDate}</span></div>} key={index} style={customPanelStyle}>
+                <Panel header={<div><span>{item.title}</span><span className='noticeList-time'>{item.publishTime}</span></div>} key={index} style={customPanelStyle}>
                   <p>{item.content}</p>
                 </Panel>
               );

@@ -14,7 +14,7 @@ import {
 } from "antd";
 import "./ApproveList.less";
 import http from "../../../utils/api";
-const applyDataBaseId = "620384838453";
+const applyDataBaseId = "621790784304"; //数据库申请表-审核
 const { TextArea } = Input;
 
 class ApproveList extends React.Component {
@@ -59,18 +59,18 @@ class ApproveList extends React.Component {
     });
   };
   onPassOrReject = async type => {
-    http().clearCache()
+    http().clearCache();
     let res;
     let data;
     if (type === 1) {
-       data = [
+      data = [
         {
           ...this.state.record,
           isPass: "Y"
         }
       ];
     } else {
-       data = [
+      data = [
         {
           ...this.state.record,
           isPass: "N"
@@ -189,7 +189,7 @@ class ApproveList extends React.Component {
           <img
             src={record.doctorPhoto}
             alt="avatar"
-            style={{ width: "200px",height:"200px" }}
+            style={{ width: "200px", height: "200px" }}
           />
         </Form.Item>
       </Form>
@@ -197,49 +197,49 @@ class ApproveList extends React.Component {
     const columns = [
       {
         title: "序号",
-        dataIndex: "name",
-        key: "name",
-        width:150
+        dataIndex: "number",
+        key: "number",
+        width: 80
       },
-      // {
-      //   title: 'Name',
-      //   dataIndex: 'name',
-      //   key: 'name',
-      //   render: text => <a>{text}</a>,
-      // },
       {
         title: "申请人",
         dataIndex: "doctor",
         key: "doctor",
-        width:150
+        width: 150
       },
       {
         title: "申请时间",
-        dataIndex: "applyTime",
-        key: "applyTime",
-        width:150
+        dataIndex: "applyDate",
+        key: "applyDate",
+        width: 150
       },
       {
         title: "所属单位",
         dataIndex: "hospital",
         key: "hospital",
-        width:150
+        width: 150
       },
       {
         title: "研究类型",
         dataIndex: "studyType",
         key: "studyType",
-        width:150
+        width: 150
       },
       {
         title: "审批状态",
         dataIndex: "approveStatus",
         key: "approveStatus",
-        width:150,
-        render:data =>{
-         return  <Tag color={data === '通过'?"geekblue" :data === '拒绝'?"red":"green"} >
-          {data}
-        </Tag>
+        width: 150,
+        render: data => {
+          return (
+            <Tag
+              color={
+                data === "通过" ? "geekblue" : data === "拒绝" ? "red" : "green"
+              }
+            >
+              {data}
+            </Tag>
+          );
         }
       },
       // {
@@ -265,7 +265,7 @@ class ApproveList extends React.Component {
       {
         title: "操作",
         key: "action",
-        width:150,
+        width: 150,
         render: (text, record) => (
           <span>
             <a
@@ -288,7 +288,7 @@ class ApproveList extends React.Component {
               className="approveList-table"
               columns={columns}
               dataSource={data}
-              scroll={{ x: 1000, y: 'calc(100vh - 220px)' }} 
+              scroll={{ x: 1000, y: "calc(100vh - 220px)" }}
             />
           </Spin>
         ) : (

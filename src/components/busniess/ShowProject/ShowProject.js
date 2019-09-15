@@ -15,6 +15,7 @@ class ShowProject extends React.Component {
     visible: false
   };
   componentDidMount = async () => {
+    http().clearCache();
     await this.getData();
   };
   componentWillUnmount() {
@@ -94,14 +95,13 @@ class ShowProject extends React.Component {
   };
 
   render() {
-    const { data, spin, page, record, visible } = this.state;
+    const { data, spin, page } = this.state;
     const columns = [
       {
         title: "序号",
-        dataIndex: "name",
-        key: "name",
-        width: 150,
-        render: (data, index) => {}
+        dataIndex: "number",
+        key: "number",
+        width: 80
       },
       {
         title: "申请时间",
@@ -110,8 +110,8 @@ class ShowProject extends React.Component {
         width: 150
       },
       {
-        title: "所属单位",
-        dataIndex: "hospital",
+        title: "课题名称",
+        dataIndex: "task",
         key: "hospital",
         width: 150
       },
@@ -122,31 +122,22 @@ class ShowProject extends React.Component {
         width: 150
       },
       {
-        title: "研究类型",
-        dataIndex: "studyType",
-        key: "studyType",
-        width: 150
+        title: "审批状态",
+        dataIndex: "status",
+        key: "status",
+        width: 150,
+        render: data => {
+          return (
+            <Tag
+              color={
+                data === "通过" ? "geekblue" : data === "拒绝" ? "red" : "green"
+              }
+            >
+              {data}
+            </Tag>
+          );
+        }
       }
-      // {
-      //   title: 'Tags',
-      //   key: 'tags',
-      //   dataIndex: 'tags',
-      //   render: tags => (
-      //     <span>
-      //       {tags.map(tag => {
-      //         let color = tag.length > 5 ? 'geekblue' : 'green';
-      //         if (tag === 'loser') {
-      //           color = 'volcano';
-      //         }
-      //         return (
-      //           <Tag color={color} key={tag}>
-      //             {tag.toUpperCase()}
-      //           </Tag>
-      //         );
-      //       })}
-      //     </span>
-      //   ),
-      // },
     ];
     return (
       <div className="approveProjectList">

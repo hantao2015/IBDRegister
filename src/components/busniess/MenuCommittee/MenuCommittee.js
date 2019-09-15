@@ -1,18 +1,14 @@
 import React, { Component } from "react";
 import "./MenuCommittee.less";
 import http from "../../../utils/api";
-import { Form, message, Icon, Input, Button, Tabs } from "antd";
-import NoticeList from "../NoticeList";
+import { Tabs } from "antd";
 import EditNotice from "../EditNotice";
 import ApproveList from "../ApproveList";
 import ApproveProjectList from "../ApproveProjectList";
+import UploadFile from "../UploadFile/UploadFile";
 const { TabPane } = Tabs;
 
 class MenuCommittee extends Component {
-  state = {};
-
-  componentDidMount = () => {};
-
   render() {
     return (
       <Tabs
@@ -32,6 +28,9 @@ class MenuCommittee extends Component {
         </TabPane>
         <TabPane tab="编辑发布通知" key="3">
           <EditNotice></EditNotice>
+        </TabPane>
+        <TabPane tab="上传资料" key="4">
+          <UploadFile></UploadFile>
         </TabPane>
       </Tabs>
     );
