@@ -26,9 +26,9 @@ const columns = props => {
       width: 250
     },
     {
-      title: "文件地址",
-      dataIndex: "fileUrl",
-      key: "fileUrl",
+      title: "备注",
+      dataIndex: "remark",
+      key: "remark",
       width: 400
     },
     {
@@ -185,7 +185,8 @@ class UploadFile extends Component {
     let obj = {};
     obj = {
       fileName: values.fileName,
-      fileUrl: this.state.fileUrl
+      fileUrl: this.state.fileUrl,
+      remark:values.remark
     };
     try {
       res = await http().addRecords({
@@ -312,6 +313,20 @@ class UploadFile extends Component {
                     {
                       required: true,
                       message: "请输入申请人",
+                      whitespace: true
+                    }
+                  ]
+                })(<Input />)}
+              </Form.Item>  
+               <Form.Item
+                className="editNotice-form-item"
+                label={<span>备注&nbsp;</span>}
+              >
+                {getFieldDecorator("remark", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请输入备注",
                       whitespace: true
                     }
                   ]

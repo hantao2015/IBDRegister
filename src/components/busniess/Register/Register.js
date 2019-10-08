@@ -53,6 +53,7 @@ class Register extends Component {
     }
   };
   register = async () => {
+    http().clearCache();
     const { form } = this.props;
     let res;
     this.props.form.validateFieldsAndScroll(async (err, values) => {
@@ -62,14 +63,22 @@ class Register extends Component {
       let registerData = {
         Handphone: form.getFieldValue("phone"), // 手机号
         userid: form.getFieldValue("postNumber"), //执业证号码
-        occuptionNumber: form.getFieldValue("postNumber"), //执业证号码
+        // occuptionNumber: form.getFieldValue("postNumber"), //执业证号码
         validcode: form.getFieldValue("valid"), // 验证码
-        hospital: form.getFieldValue("hospital"), // 医院
+        // hospital: form.getFieldValue("hospital"), // 医院
         nickname: form.getFieldValue("doctor"),
         // office:form.office,
         validresid: 616852937051
         // unionid: this.unionid,
         // openid: this.openid
+      };
+      let doctorData = {
+        phoneNumber: form.getFieldValue("phone"), // 手机号
+        occupationNumber: form.getFieldValue("postNumber"), //执业证号码
+        hospital: form.getFieldValue("hospital"), // 医院
+        doctor: form.getFieldValue("doctor"),
+        email:form.getFieldValue("email"),
+        post: form.getFieldValue("post") //职称
       };
       this.setState({
         showSpin: true
@@ -80,7 +89,8 @@ class Register extends Component {
         if (res.data.error == 0) {
           message.success("注册成功");
           this.props.history.push({
-            pathname: "/login"
+            pathname: "/login",
+            state: { doctorData }
           });
         } else {
           message.error(res.data.message);
@@ -152,11 +162,28 @@ class Register extends Component {
                 )}
               </Form.Item>
               <Form.Item>
+                {getFieldDecorator("email", {
+                  rules: [
+                    {
+                      type: "email",
+                      required: true,
+                      message: "请输入您的邮箱!"
+                    }
+                  ]
+                })(
+                  <Input
+                    prefix={
+                      <Icon type="mail" style={{ color: "rgba(0,0,0,.25)" }} />
+                    }
+                    placeholder="邮箱"
+                  />
+                )}
+              </Form.Item>
+              <Form.Item>
                 {getFieldDecorator("phone", {
                   rules: [{ required: true, message: "请输入您的手机号!" }]
                 })(
                   <Input
-                    size="large"
                     prefix={
                       <Icon type="phone" style={{ color: "rgba(0,0,0,.25)" }} />
                     }
@@ -170,7 +197,6 @@ class Register extends Component {
                   rules: [{ required: true, message: "请输入你的验证码!" }]
                 })(
                   <Input
-                    size="large"
                     className="login-form-valid-input"
                     prefix={
                       <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
@@ -180,18 +206,12 @@ class Register extends Component {
                 )}
               </Form.Item>
               {disabled ? (
-                <Button
-                  className="login-form-valid-countdown"
-                  size="large"
-                  type="primary"
-                  disabled
-                >
+                <Button style={{ marginLeft: "10px" }} type="primary" disabled>
                   {counts}
                 </Button>
               ) : (
                 <Button
-                  className="login-form-valid-button"
-                  size="large"
+                  style={{ marginLeft: "10px" }}
                   type="primary"
                   onClick={this.getVerCode}
                 >

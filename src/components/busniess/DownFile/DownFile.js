@@ -26,9 +26,9 @@ const columns = props => {
       width: 250
     },
     {
-      title: "文件地址",
-      dataIndex: "fileUrl",
-      key: "fileUrl",
+      title: "备注",
+      dataIndex: "remark",
+      key: "remark",
       width: 400
     },
     {
@@ -96,13 +96,6 @@ class DownFile extends Component {
     });
   };
 
-  handleSubmit = e => {
-    this.props.form.validateFieldsAndScroll((err, values) => {
-      if (!err) {
-        this.onSubmit(values);
-      }
-    });
-  };
   //下载文件
   onDown = url => {
     if (!url) {

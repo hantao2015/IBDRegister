@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "./Login.less";
 import http from "../../../utils/api";
 import { Form, message, Icon, Input, Button, Spin } from "antd";
-
+const doctorInfoId = "622204211916";
 class Login extends Component {
   state = {
     disabled: false,
@@ -34,6 +34,10 @@ class Login extends Component {
         if (res.data.OpResult == "Y") {
           message.success("登录成功");
           localStorage.setItem("userInfo", JSON.stringify(res.data));
+          this.props.history.location.state && (await this.saveDoctorData());
+          this.setState({
+            showSpin: false
+          });
           this.props.history.push({
             pathname: "/home"
           });
@@ -43,10 +47,29 @@ class Login extends Component {
       } catch (error) {
         message.error(error.message);
       }
-      this.setState({
-        showSpin: false
-      });
     });
+  };
+
+  componentWillUnmount() {
+    // 卸载异步操作设置状态
+    this.setState = (state, callback) => {
+      return;
+    };
+  }
+  saveDoctorData = async () => {
+    let doctorData = this.props.history.location.state.doctorData;
+    let res;
+    try {
+      res = await http().addRecords({
+        resid: doctorInfoId,
+        data: [doctorData]
+      });
+      if (res.data.Error === 0) {
+        // message.success("添加成功");
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
   };
   countDown = () => {
     let counts = 60;

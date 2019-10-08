@@ -55,10 +55,11 @@ class ActApply extends Component {
     applyList: [],
     page: "listPage",
     record: {},
-    loading: false
+    loading: false,
+    isEdit: false
   };
-  componentDidMount() {
-    this.getApplyData();
+  componentDidMount = async() => {
+   await this.getApplyData();
   }
 
   //获取申请记录
@@ -140,6 +141,7 @@ class ActApply extends Component {
     let res;
     let obj = {};
     let study = values.study && values.study.toString();
+    const { isEdit, record } = this.state;
     if (type === 1) {
       obj = {
         doctor: values.doctor,
@@ -174,20 +176,41 @@ class ActApply extends Component {
         isSubmit: "Y"
       };
     }
-    try {
-      res = await http().addRecords({
-        resid: applyDataBaseId,
-        data: [obj]
-      });
-      if (res.data.Error == 0) {
-        message.success("申请成功！");
+    if (isEdit) {
+      obj.REC_ID = record.REC_ID;
+      try {
+        res = await http().modifyRecords({
+          resid: applyDataBaseId,
+          data: [obj]
+        });
+        if (res.data.Error == 0) {
+          message.success("申请成功！");
+        }
+        this.setState({
+          page: "listPage",
+          isEdit:false
+        });
+        this.getApplyData();
+      } catch (error) {
+        message.error(error.message);
       }
-      this.setState({
-        page: "listPage"
-      });
-      this.getApplyData();
-    } catch (error) {
-      message.error(error.message);
+    } else {
+      try {
+        res = await http().addRecords({
+          resid: applyDataBaseId,
+          data: [obj]
+        });
+        if (res.data.Error == 0) {
+          message.success("申请成功！");
+        }
+        this.setState({
+          page: "listPage",
+          isEdit:false
+        });
+        this.getApplyData();
+      } catch (error) {
+        message.error(error.message);
+      }
     }
   };
   print = () => {
@@ -235,11 +258,17 @@ class ActApply extends Component {
       page: "listPage"
     });
   };
-  onCheck = item => {
-    console.log("aaa");
+  onCheck = record => {
     this.setState({
       page: "checkPage",
-      record: item
+      record
+    });
+  };
+  onEdit = record => {
+    this.setState({
+      page: "applyPage",
+      record,
+      isEdit: true
     });
   };
   showImage = () => {
@@ -272,7 +301,7 @@ class ActApply extends Component {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { imageUrl, applyList, loading, page, record } = this.state;
+    const { imageUrl, applyList, loading, page, record,isEdit } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -391,7 +420,14 @@ class ActApply extends Component {
                 >
                   查看
                 </a>,
-                ,
+                <a
+                  key="list-loadmore-edit"
+                  onClick={() => {
+                    this.onEdit(item);
+                  }}
+                >
+                  编辑
+                </a>,
                 item.isSubmit === "Y" ? (
                   <a
                     key="list-loadmore-edit"
@@ -466,7 +502,8 @@ class ActApply extends Component {
                   message: "请输入申请人",
                   whitespace: true
                 }
-              ]
+              ],
+              initialValue: isEdit?record.doctor:null
             })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>所属单位&nbsp;</span>}>
@@ -477,7 +514,8 @@ class ActApply extends Component {
                   message: "请输入所属单位",
                   whitespace: true
                 }
-              ]
+              ],
+              initialValue: isEdit?record.hospital:null
             })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>职称&nbsp;</span>}>
@@ -488,7 +526,8 @@ class ActApply extends Component {
                   message: "请输入您的职称！",
                   whitespace: true
                 }
-              ]
+              ],
+              initialValue:isEdit? record.post:null
             })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>联系电话&nbsp;</span>}>
@@ -499,7 +538,8 @@ class ActApply extends Component {
                   message: "请输入您的联系电话!",
                   whitespace: true
                 }
-              ]
+              ],
+              initialValue: isEdit?record.phoneNumber:null
             })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>E-mail&nbsp;</span>}>
@@ -510,17 +550,26 @@ class ActApply extends Component {
                   message: "请输入您的邮箱!",
                   whitespace: true
                 }
-              ]
+              ],
+              initialValue: isEdit?record.email:null
             })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
-            {getFieldDecorator("teamPeople")(<Input />)}
-            {getFieldDecorator("teamPeople2", {})(<Input />)}
-            {getFieldDecorator("teamPeople3", {})(<Input />)}
+            {getFieldDecorator("teamPeople", {
+              initialValue: isEdit?record.teamPeople:null
+            })(<Input />)}
+            {getFieldDecorator("teamPeople2", {
+              initialValue: isEdit?record.teamPeople2:null
+            })(<Input />)}
+            {getFieldDecorator("teamPeople3", {
+              initialValue:isEdit? record.teamPeople3:null
+            })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>选择参与数据库研究&nbsp;</span>}>
             {getFieldDecorator("study", {
-              rules: []
+              rules: [],
+              valuePropName: "checked",
+              initialValue: isEdit?record.study:null
             })(
               <Checkbox.Group
                 options={options}
@@ -530,30 +579,34 @@ class ActApply extends Component {
           </Form.Item>
           <h3 style={{ textAlign: "center" }}>贵院目前患者数量</h3>
 
-          <Form.Item label={<span>CD患者数量：&nbsp;</span>}>
+          <Form.Item label={<span>CD患者数量&nbsp;</span>}>
             {getFieldDecorator("CDNumber", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入贵院的CD患者数量!",
-                  whitespace: true
-                }
-              ]
+              // rules: [
+              //   {
+              //     required: true,
+              //     message: "请输入贵院的CD患者数量!",
+              //     whitespace: true
+              //   }
+              // ],
+              initialValue: isEdit?record.CDPatientNumber:null
             })(<Input />)}
           </Form.Item>
-          <Form.Item label={<span>UC患者数量：&nbsp;</span>}>
+          <Form.Item label={<span>UC患者数量&nbsp;</span>}>
             {getFieldDecorator("UCNumber", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入贵院的UC患者数量!",
-                  whitespace: true
-                }
-              ]
+              // rules: [
+              //   {
+              //     required: true,
+              //     message: "请输入贵院的UC患者数量!",
+              //     whitespace: true
+              //   }
+              // ],
+              initialValue: isEdit?record.UCPatientNumber:null
             })(<Input />)}
           </Form.Item>
           <Form.Item label={<span>医师执照：&nbsp;</span>}>
-            {getFieldDecorator("doctorPhoto", {})(
+            {getFieldDecorator("doctorPhoto", {
+              initialValue: isEdit?record.doctorPhoto:null
+            })(
               <Upload
                 name="avatar"
                 listType="picture-card"
@@ -596,6 +649,7 @@ class ActApply extends Component {
     };
 
     return (
+      <Spin spinning={loading}>
       <ApplyDataBase
         pages={pages}
         page={this.state.page}
@@ -603,7 +657,7 @@ class ActApply extends Component {
         showImage={this.showImage}
         onApply={this.onApply}
         ref={el => (this.componentRef = el)}
-      ></ApplyDataBase>
+      ></ApplyDataBase></Spin>
     );
   }
 }

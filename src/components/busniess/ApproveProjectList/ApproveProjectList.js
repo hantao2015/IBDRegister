@@ -14,10 +14,10 @@ class ApproveProjectList extends React.Component {
     page: "listPage",
     spin: false,
     record: {},
-    visible: false
+    visible: false,
+    currentSuggest: "" // 当前登录人的建议
   };
   componentDidMount = async () => {
-    http().clearCache();
     await this.getData();
   };
   componentWillUnmount() {
@@ -27,6 +27,14 @@ class ApproveProjectList extends React.Component {
     };
   }
   onCheck = record => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    record['621432069832'].map((item) => {
+      if (userInfo.UserInfo.EMP_USERCODE == item.personId) {
+              this.setState({
+                currentSuggest: item
+              });
+            }
+    })
     this.setState({
       page: "checkPage",
       record
@@ -82,20 +90,25 @@ class ApproveProjectList extends React.Component {
     }
   };
   submitSuggest = async e => {
-    const { record } = this.state;
+    const { record ,} = this.state;
     this.props.form.validateFieldsAndScroll(async (err, values) => {
       if (err) {
         return;
       }
+      let currentSuggest;
+      if(this.state.currentSuggest){
+         currentSuggest =  JSON.parse(JSON.stringify(this.state.currentSuggest))
+        currentSuggest.suggest = values.suggest;
+      }
       let res;
       let data = [
         {
-          suggest: values.suggest,
-          projectId: record.REC_ID
+          ...currentSuggest,
+          // projectId: record.applyId
         }
       ];
       try {
-        res = await http().addRecords({
+        res = await http().modifyRecords({
           resid: suggestId,
           data
         });
@@ -123,6 +136,8 @@ class ApproveProjectList extends React.Component {
         subresid: suggestId
       });
       if (res.data.Error === 0) {
+        console.log("res.data.data", res.data.data);
+       
         this.setState({
           data: res.data.data
         });
@@ -134,7 +149,7 @@ class ApproveProjectList extends React.Component {
   };
 
   render() {
-    const { data, spin, page, record, visible } = this.state;
+    const { data, spin, page, record, visible, currentSuggest } = this.state;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
@@ -184,9 +199,21 @@ class ApproveProjectList extends React.Component {
         width: 150
       },
       {
-        title: "申请人",
+        title: "发起人",
         dataIndex: "doctor",
         key: "doctor",
+        width: 150
+      },
+      {
+        title: "申请加入人",
+        dataIndex: "joinPerson",
+        key: "joinPerson",
+        width: 150
+      },
+      {
+        title: "状态",
+        dataIndex: "applyPersonStatus",
+        key: "applyPersonStatus",
         width: 150
       },
       {
@@ -198,7 +225,11 @@ class ApproveProjectList extends React.Component {
           return (
             <Tag
               color={
-                data === "通过" ? "geekblue" : data === "拒绝" ? "red" : "green"
+                data === "进行中"
+                  ? "blue"
+                  : data === "已完成"
+                  ? "geekblue"
+                  : "green"
               }
             >
               {data}
@@ -239,8 +270,8 @@ class ApproveProjectList extends React.Component {
             返回
           </Button>
         ) : null}
-        {!record.isPass ? (
-          <div className="approveList-btns">
+        <div className="approveList-btns">
+          {!record.isPass ? (
             <Button
               className="approveList-btn"
               type="primary"
@@ -250,8 +281,8 @@ class ApproveProjectList extends React.Component {
             >
               同意
             </Button>
-
-            <Button
+          ) : null}
+          {/* <Button
               className="approveList-btn"
               type="danger"
               onClick={() => {
@@ -259,16 +290,15 @@ class ApproveProjectList extends React.Component {
               }}
             >
               拒绝
-            </Button>
-            <Button
-              className="approveList-btn"
-              type="primary"
-              onClick={this.onSuggest}
-            >
-              建议
-            </Button>
-          </div>
-        ) : null}
+            </Button> */}
+          <Button
+            className="approveList-btn"
+            type="primary"
+            onClick={this.onSuggest}
+          >
+            建议
+          </Button>
+        </div>
         <div className="approveProjectList-form-contain">
           <div className="approveProjectList-form-contain-info">
             <h1>CHASE-IBD专项课题申请表</h1>
@@ -405,7 +435,7 @@ class ApproveProjectList extends React.Component {
                 })}
             </div>
           ) : null}
-        </div>{" "}
+        </div>
         <Modal
           title="建议"
           visible={visible}
@@ -418,7 +448,6 @@ class ApproveProjectList extends React.Component {
               取消
             </Button>,
             <Button
-              key="submit"
               htmlType="submit"
               type="primary"
               onClick={() => {
@@ -432,6 +461,7 @@ class ApproveProjectList extends React.Component {
           <Form {...formItemLayout} className="editNotice-form">
             {/* <h1>消息编辑</h1> */}
             {getFieldDecorator("suggest", {
+              initialValue: currentSuggest.suggest,
               rules: [
                 {
                   required: true,
@@ -441,7 +471,7 @@ class ApproveProjectList extends React.Component {
               ]
             })(
               <TextArea
-                placeHolder="请输入建议"
+                placeholder="请输入建议"
                 className="editNotice-form-item-textarea"
               />
             )}

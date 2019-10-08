@@ -16,7 +16,7 @@ import "./EditNotice.less";
 import ApplyDataBase from "../ApplyDataBase";
 import http from "../../../utils/api";
 import TextArea from "antd/lib/input/TextArea";
-const noticeId = "620317621824";
+const noticeId = "621790850309";
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -347,7 +347,6 @@ class EditNotice extends React.Component {
     );
   };
   componentDidMount = async () => {
-    http().clearCache();
     await this.getData();
   };
   getData = async () => {
@@ -359,7 +358,7 @@ class EditNotice extends React.Component {
       res = await http().getTable({
         resid: noticeId
       });
-      if (res.data.Error === 0) {
+      if (res.data.error === 0) {
         this.setState({
           data: res.data.data
         });

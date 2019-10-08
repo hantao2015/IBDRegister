@@ -136,7 +136,7 @@ class ApproveList extends React.Component {
               >
                 同意
               </Button>
-              <Button
+              {/* <Button
                 className="approveList-btn"
                 type="danger"
                 onClick={() => {
@@ -144,7 +144,7 @@ class ApproveList extends React.Component {
                 }}
               >
                 拒绝
-              </Button>
+              </Button> */}
             </React.Fragment>
           )}
         </div>
@@ -233,9 +233,9 @@ class ApproveList extends React.Component {
         render: data => {
           return (
             <Tag
-              color={
-                data === "通过" ? "geekblue" : data === "拒绝" ? "red" : "green"
-              }
+            color={
+              data === "进行中" ? "blue" : data === "已完成" ? "geekblue" : "green"
+            }
             >
               {data}
             </Tag>

@@ -19,7 +19,8 @@ import {
   Steps,
   Popover,
   Tag,
-  Modal
+  Modal,
+  Alert
 } from "antd";
 import http from "../../../utils/api";
 import ShowImage from "../ApplyDataBase/ShowImage";
@@ -29,6 +30,7 @@ import applyProjectImage2 from "../../../assets/images/applyProject2.jpg";
 import TextArea from "antd/lib/input/TextArea";
 const applyProjectId = "620475440053";
 const suggestId = "621432069832";
+const joinProjectId = "622302753373";
 const { Meta } = Card;
 const { Step } = Steps;
 
@@ -44,9 +46,15 @@ class ApplyProject extends Component {
     record: {},
     postilData: [],
     loading: false,
+    isEdit: false,
+    doctorInfo: null
   };
   componentDidMount = async () => {
     await this.getApplyData();
+    const doctorInfo = JSON.parse(localStorage.getItem("doctorInfo"));
+    this.setState({
+      doctorInfo
+    });
   };
 
   //获取申请记录
@@ -58,7 +66,7 @@ class ApplyProject extends Component {
     try {
       res = await http().getTableNew({
         resid: applyProjectId,
-        subresid: suggestId
+        subresid: `${suggestId},${joinProjectId}`
       });
       if (res.data.Error == 0) {
         let data = [];
@@ -110,13 +118,19 @@ class ApplyProject extends Component {
     let res;
     let obj = {};
     let study = values.study && values.study.toString();
+    const { isEdit, record, doctorInfo } = this.state;
+    console.log("doctorInfo",doctorInfo)
+    // const doctorInfo = JSON.parse(localStorage.getItem("doctorInfo"));
+    // record.joinPersonID = doctorInfo.doctorId;
     if (type === 1) {
       obj = {
         doctor: values.doctor,
         hospital: values.hospital,
         task: values.task,
-        phoneNumber: values.phone,
-        email: values.email,
+        doctorId: doctorInfo.doctorId,
+        // phoneNumber: values.phone,
+        post: values.post,
+        // email: values.email,
         taskPrincipal: values.taskPrincipal,
         studyType: values.studyType,
         inlandUnit: values.inlandUnit,
@@ -140,7 +154,9 @@ class ApplyProject extends Component {
         doctor: values.doctor,
         hospital: values.hospital,
         task: values.task,
+        doctorId: doctorInfo.doctorId,
         phoneNumber: values.phone,
+        post: values.post,
         email: values.email,
         taskPrincipal: values.taskPrincipal,
         studyType: values.studyType,
@@ -162,23 +178,45 @@ class ApplyProject extends Component {
         isSubmit: "Y"
       };
     }
-    try {
-      res = await http().addRecords({
-        resid: applyProjectId,
-        data: [obj]
-      });
-      if (res.data.Error == 0) {
-        message.success("申请成功！");
+    if (isEdit === true) {
+      obj.REC_ID = record.REC_ID;
+      try {
+        res = await http().modifyRecords({
+          resid: applyProjectId,
+          data: [obj]
+        });
+        if (res.data.Error == 0) {
+          message.success("申请成功！");
+        }
+        this.setState({
+          page: "listPage",
+          isEdit: false
+        });
+        await this.getApplyData();
+      } catch (error) {
+        message.error(error.message);
       }
-      this.setState({
-        page: "listPage"
-      });
-      await this.getApplyData();
-    } catch (error) {
-      message.error(error.message);
+    } else {
+      try {
+        res = await http().addRecords({
+          resid: applyProjectId,
+          data: [obj]
+        });
+        if (res.data.Error == 0) {
+          message.success("申请成功！");
+        }
+        this.setState({
+          page: "listPage",
+          isEdit: false
+        });
+        await this.getApplyData();
+      } catch (error) {
+        message.error(error.message);
+      }
     }
   };
   onApply = () => {
+    console.log("isEdit", this.state.isEdit);
     this.setState({
       page: "applyPage"
     });
@@ -188,8 +226,8 @@ class ApplyProject extends Component {
       title: "进度查询",
       width: 500,
       content: (
-        <div style={{marginTop:"20px"}}>
-          <div style={{marginBottom:"20px"}}>课题名称：{record.task}</div>
+        <div style={{ marginTop: "20px" }}>
+          <div style={{ marginBottom: "20px" }}>课题名称：{record.task}</div>
           <Steps
             current={
               record.status === "通过" || record.status === "拒绝" ? 2 : 1
@@ -214,6 +252,13 @@ class ApplyProject extends Component {
     this.setState({
       page: "checkPage",
       record: item
+    });
+  };
+  onEdit = item => {
+    this.setState({
+      page: "applyPage",
+      record: item,
+      isEdit: true
     });
   };
   showImage = () => {
@@ -245,7 +290,8 @@ class ApplyProject extends Component {
       loading,
       page,
       record,
-      postilData
+      postilData,
+      isEdit
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -422,6 +468,37 @@ class ApplyProject extends Component {
               </div>
               {record["621432069832"] ? (
                 <div className="applyProject-form-contain-notice">
+                  <span>申请加入人</span>
+                  {record["622302753373"] &&
+                  record["622302753373"].length > 0 ? (
+                    record["622302753373"].map(item => {
+                      return (
+                        <div className="applyProject-form-contain-notice-alerts">
+                          <Alert
+                            message={
+                              <div>
+                                <b>{item.joinPerson}申请加入</b>
+                                <b
+                                  style={{ position: "absolute", right: "8px" }}
+                                >
+                                  {item.applyTime}
+                                </b>
+                              </div>
+                            }
+                            type="info"
+                            className="applyProject-form-contain-notice-alert"
+                          />
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div
+                      className="applyProject-form-contain-notice-alerts"
+                      style={{ textAlign: "center" }}
+                    >
+                      暂无人加入
+                    </div>
+                  )}
                   <span>来自数委会的批注</span>
                   {record["621432069832"] &&
                     record["621432069832"].map(item => {
@@ -460,6 +537,16 @@ class ApplyProject extends Component {
                   >
                     查看
                   </a>,
+                  !item.joinPersonID ? (
+                    <a
+                      key="list-loadmore-edit"
+                      onClick={() => {
+                        this.onEdit(item);
+                      }}
+                    >
+                      编辑
+                    </a>
+                  ) : null,
                   item.isSubmit === "Y" ? (
                     <a
                       key="list-loadmore-edit"
@@ -469,16 +556,18 @@ class ApplyProject extends Component {
                     >
                       进度查询
                     </a>
-                  ) :  <Popconfirm
-                  title="你确定要提交吗"
-                  onConfirm={() => {
-                    this.onSubmitRecord(item);
-                  }}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <a key="list-loadmore-edit">提交</a>
-                </Popconfirm>
+                  ) : (
+                    <Popconfirm
+                      title="你确定要提交吗"
+                      onConfirm={() => {
+                        this.onSubmitRecord(item);
+                      }}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <a key="list-loadmore-edit">提交</a>
+                    </Popconfirm>
+                  )
                 ]}
               >
                 {/* <Skeleton avatar title={false} loading={item.doctor} active> */}
@@ -555,7 +644,8 @@ class ApplyProject extends Component {
                       message: "请输入课题名称",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.task : null
                 })(<Input />)}
               </Form.Item>
               <Form.Item label={<span>课题负责人&nbsp;</span>}>
@@ -566,10 +656,11 @@ class ApplyProject extends Component {
                       message: "请输入课题负责人",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.taskPrincipal : null
                 })(<Input />)}
               </Form.Item>
-              <Form.Item label={<span>申请人&nbsp;</span>}>
+              {/* <Form.Item label={<span>申请人&nbsp;</span>}>
                 {getFieldDecorator("doctor", {
                   rules: [
                     {
@@ -577,10 +668,11 @@ class ApplyProject extends Component {
                       message: "请输入申请人",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.doctor : null
                 })(<Input />)}
-              </Form.Item>
-              <Form.Item label={<span>所属单位&nbsp;</span>}>
+              </Form.Item> */}
+              {/* <Form.Item label={<span>所属单位&nbsp;</span>}>
                 {getFieldDecorator("hospital", {
                   rules: [
                     {
@@ -588,9 +680,10 @@ class ApplyProject extends Component {
                       message: "请输入所属单位",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.hospital : null
                 })(<Input />)}
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item label={<span>职称&nbsp;</span>}>
                 {getFieldDecorator("post", {
                   rules: [
@@ -599,10 +692,11 @@ class ApplyProject extends Component {
                       message: "请输入您的职称！",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.post : null
                 })(<Input />)}
               </Form.Item>
-              <Form.Item label={<span>联系电话&nbsp;</span>}>
+              {/* <Form.Item label={<span>联系电话&nbsp;</span>}>
                 {getFieldDecorator("phone", {
                   rules: [
                     {
@@ -610,10 +704,11 @@ class ApplyProject extends Component {
                       message: "请输入您的联系电话!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.phoneNumber : null
                 })(<Input />)}
-              </Form.Item>
-              <Form.Item label={<span>E-mail&nbsp;</span>}>
+              </Form.Item> */}
+              {/* <Form.Item label={<span>E-mail&nbsp;</span>}>
                 {getFieldDecorator("email", {
                   rules: [
                     {
@@ -621,9 +716,10 @@ class ApplyProject extends Component {
                       message: "请输入您的邮箱!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.email : null
                 })(<Input />)}
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
                 {getFieldDecorator("inlandUnit", {
                   rules: [
@@ -632,18 +728,20 @@ class ApplyProject extends Component {
                       message: "请输入拟定国内协作单位!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.inlandUnit : null
                 })(<Input />)}
               </Form.Item>
               <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
-                {getFieldDecorator("forignUnit", {
+                {getFieldDecorator("foreignUnit", {
                   rules: [
                     {
                       required: true,
                       message: "请输入拟定国际协作单位!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.foreignUnit : null
                 })(<Input />)}
               </Form.Item>
               <h3 style={{ textAlign: "center" }}>研究内容</h3>
@@ -655,7 +753,8 @@ class ApplyProject extends Component {
                       message: "请输入研究的理由!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyReason : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>研究区域&nbsp;</span>}>
@@ -666,7 +765,8 @@ class ApplyProject extends Component {
                       message: "请输入研究区域!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyArea : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -681,7 +781,8 @@ class ApplyProject extends Component {
                       message: "请输入研究目标!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyTarget : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -696,7 +797,8 @@ class ApplyProject extends Component {
                       message: "请输入研究终点!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyLast : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -713,7 +815,8 @@ class ApplyProject extends Component {
                       message: "请输入研究设计与描述!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyDescription : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -730,7 +833,8 @@ class ApplyProject extends Component {
                       message: "请输入项目入选!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studySelected : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -743,7 +847,8 @@ class ApplyProject extends Component {
                       message: "请输入评估!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyAssess : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -756,7 +861,8 @@ class ApplyProject extends Component {
                       message: "请输入实验室检查!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.studyCheck : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item
@@ -773,7 +879,8 @@ class ApplyProject extends Component {
                       message: "请输入统计方法!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.staticMethod : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
@@ -784,7 +891,8 @@ class ApplyProject extends Component {
                       message: "请输入中期分析和提前终止的标准!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.standard : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>样本量的确定&nbsp;</span>}>
@@ -795,7 +903,8 @@ class ApplyProject extends Component {
                       message: "请输入样本量的确定!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.sure : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>伦理委员会&nbsp;</span>}>
@@ -806,7 +915,8 @@ class ApplyProject extends Component {
                       message: "请输入伦理委员会!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.committee : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
               <Form.Item label={<span>参考资料&nbsp;</span>}>
@@ -817,7 +927,8 @@ class ApplyProject extends Component {
                       message: "请输入参考资料!",
                       whitespace: true
                     }
-                  ]
+                  ],
+                  initialValue: isEdit ? record.referenceData : null
                 })(<TextArea className="applyProject-form-textarea" />)}
               </Form.Item>
             </div>
@@ -859,6 +970,7 @@ class ApplyProject extends Component {
           )}
           content={() => this.componentRef}
         /> */}
+        <Spin spinning={loading}> 
         <ApplyDataBase
           pages={pages}
           page={this.state.page}
@@ -866,7 +978,7 @@ class ApplyProject extends Component {
           showImage={this.showImage}
           onApply={this.onApply}
           ref={el => (this.componentRef = el)}
-        ></ApplyDataBase>
+        ></ApplyDataBase></Spin>
       </React.Fragment>
     );
   }
