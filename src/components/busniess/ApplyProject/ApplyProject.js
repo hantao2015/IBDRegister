@@ -35,7 +35,7 @@ const { Meta } = Card;
 const { Step } = Steps;
 
 const customDot = (dot, { status, index }) => (
-  <Popover content={<span>{status}</span>}>{dot}</Popover>
+  dot
 );
 
 class ApplyProject extends Component {
@@ -119,7 +119,7 @@ class ApplyProject extends Component {
     let obj = {};
     let study = values.study && values.study.toString();
     const { isEdit, record, doctorInfo } = this.state;
-    console.log("doctorInfo",doctorInfo)
+    console.log("doctorInfo", doctorInfo);
     // const doctorInfo = JSON.parse(localStorage.getItem("doctorInfo"));
     // record.joinPersonID = doctorInfo.doctorId;
     if (type === 1) {
@@ -224,19 +224,26 @@ class ApplyProject extends Component {
   onLookSchedule = record => {
     const modal = Modal.success({
       title: "进度查询",
-      width: 500,
+      width: 650,
       content: (
         <div style={{ marginTop: "20px" }}>
           <div style={{ marginBottom: "20px" }}>课题名称：{record.task}</div>
           <Steps
             current={
-              record.status === "通过" || record.status === "拒绝" ? 2 : 1
+              record.status === "已完成"
+                ? 3
+                : record.status === "进行中"
+                ? 2
+                : record.status === "草稿"
+                ? 0
+                : 1
             }
             progressDot={customDot}
           >
             <Step title="提交报告" />
-            <Step title="审核" />
-            <Step title="完成" />
+            <Step title="审核中" />
+            <Step title="进行中" />
+            <Step title="已完成" />
           </Steps>
           ,
         </div>
@@ -537,16 +544,6 @@ class ApplyProject extends Component {
                   >
                     查看
                   </a>,
-                  !item.joinPersonID ? (
-                    <a
-                      key="list-loadmore-edit"
-                      onClick={() => {
-                        this.onEdit(item);
-                      }}
-                    >
-                      编辑
-                    </a>
-                  ) : null,
                   item.isSubmit === "Y" ? (
                     <a
                       key="list-loadmore-edit"
@@ -567,7 +564,17 @@ class ApplyProject extends Component {
                     >
                       <a key="list-loadmore-edit">提交</a>
                     </Popconfirm>
-                  )
+                  ),
+                  !item.joinPersonID ? (
+                    <a
+                      key="list-loadmore-edit"
+                      onClick={() => {
+                        this.onEdit(item);
+                      }}
+                    >
+                      编辑
+                    </a>
+                  ) : null
                 ]}
               >
                 {/* <Skeleton avatar title={false} loading={item.doctor} active> */}
@@ -970,15 +977,16 @@ class ApplyProject extends Component {
           )}
           content={() => this.componentRef}
         /> */}
-        <Spin spinning={loading}> 
-        <ApplyDataBase
-          pages={pages}
-          page={this.state.page}
-          onBack={this.onBack}
-          showImage={this.showImage}
-          onApply={this.onApply}
-          ref={el => (this.componentRef = el)}
-        ></ApplyDataBase></Spin>
+        <Spin spinning={loading}>
+          <ApplyDataBase
+            pages={pages}
+            page={this.state.page}
+            onBack={this.onBack}
+            showImage={this.showImage}
+            onApply={this.onApply}
+            ref={el => (this.componentRef = el)}
+          ></ApplyDataBase>
+        </Spin>
       </React.Fragment>
     );
   }

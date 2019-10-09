@@ -29,9 +29,9 @@ class ApproveList extends React.Component {
     await this.getData();
   };
   getData = async () => {
-    this.setState({
-      spin: true
-    });
+    // this.setState({
+    //   spin: true
+    // });
     let res;
     try {
       res = await http().getTable({
@@ -43,9 +43,9 @@ class ApproveList extends React.Component {
         });
       }
     } catch (error) {}
-    this.setState({
-      spin: false
-    });
+    // this.setState({
+    //   spin: false
+    // });
   };
   onCheck = record => {
     this.setState({
@@ -234,7 +234,7 @@ class ApproveList extends React.Component {
           return (
             <Tag
             color={
-              data === "进行中" ? "blue" : data === "已完成" ? "geekblue" : "green"
+              data === "审核中" ? "blue" : data === "通过" ? "geekblue" : "green"
             }
             >
               {data}

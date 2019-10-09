@@ -8,12 +8,13 @@ const CommitCard = (record) => {
         <Skeleton loading={record.data?false:true}  avatar active>
           <Meta
             avatar={<Icon type="user"></Icon>}
-            title={<div>批注人：{record.data.person}</div>}
+            title={<div>批注人：{record.data.name}</div>}
             description={
-              <div>
+            record.data.suggest ? <div>
                 <div>时间：{record.data.writeTime}</div>
                 <div>建议：{record.data.suggest}</div>
               </div>
+              :<div>暂无建议</div>
             }
           />
         </Skeleton>

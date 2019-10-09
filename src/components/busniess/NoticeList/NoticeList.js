@@ -10,15 +10,15 @@ class NoticeList extends Component {
     collapsed: false,
     imageUrl: "",
     userInfo: {},
-    currentNotice: [],
+    currentNotice: {},
     historyNotice: [],
     showSpin: false
   };
   componentDidMount = async () => {
     let res;
-    this.setState({
-      showSpin: true
-    });
+    // this.setState({
+    //   showSpin: true
+    // });
     try {
       res = await http().getTable({
         resid: noticeId
@@ -29,9 +29,9 @@ class NoticeList extends Component {
         historyNotice: history
       });
     } catch (error) {}
-    this.setState({
-      showSpin: false
-    });
+    // this.setState({
+    //   showSpin: false
+    // });
   };
   render() {
     const customPanelStyle = {

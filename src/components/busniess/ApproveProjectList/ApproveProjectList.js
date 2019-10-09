@@ -29,7 +29,7 @@ class ApproveProjectList extends React.Component {
   onCheck = record => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     record['621432069832'].map((item) => {
-      if (userInfo.UserInfo.EMP_USERCODE == item.personId) {
+      if (userInfo.UserInfo.EMP_HANDPHONE == item.phone) {
               this.setState({
                 currentSuggest: item
               });
@@ -91,6 +91,7 @@ class ApproveProjectList extends React.Component {
   };
   submitSuggest = async e => {
     const { record ,} = this.state;
+    console.log("currentSuggest",this.state.currentSuggest)
     this.props.form.validateFieldsAndScroll(async (err, values) => {
       if (err) {
         return;

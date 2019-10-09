@@ -28,7 +28,7 @@ const applyDataBaseId = "620384838453";
 const { Step } = Steps;
 
 const customDot = (dot, { status, index }) => (
-  <Popover content={<span>{status}</span>}>{dot}</Popover>
+  dot
 );
 
 const uploadFile = (file, url) => {
@@ -286,13 +286,13 @@ class ActApply extends Component {
         <div style={{ marginTop: "20px" }}>
           <Steps
             current={
-              record.status === "通过" || record.status === "拒绝" ? 2 : 1
+              record.status === "通过"  ? 2 : 1
             }
             progressDot={customDot}
           >
-            <Step title="提交报告" />
-            <Step title="审核" />
-            <Step title="完成" />
+          <Step title="提交报告" />
+          <Step title="审核中" />
+          <Step title="已完成" />
           </Steps>
           ,
         </div>
@@ -420,14 +420,6 @@ class ActApply extends Component {
                 >
                   查看
                 </a>,
-                <a
-                  key="list-loadmore-edit"
-                  onClick={() => {
-                    this.onEdit(item);
-                  }}
-                >
-                  编辑
-                </a>,
                 item.isSubmit === "Y" ? (
                   <a
                     key="list-loadmore-edit"
@@ -448,7 +440,15 @@ class ActApply extends Component {
                   >
                     <a key="list-loadmore-edit">提交</a>
                   </Popconfirm>
-                )
+                ),
+                <a
+                  key="list-loadmore-edit"
+                  onClick={() => {
+                    this.onEdit(item);
+                  }}
+                >
+                  编辑
+                </a>
               ]}
             >
               {/* <Skeleton avatar title={false} loading={item.doctor} active> */}

@@ -11,7 +11,8 @@ import {
   Form,
   Modal,
   Input,
-  message
+  message,
+  Spin
 } from "antd";
 import logo from "../../../assets/images/logo.png";
 import NoticeList from "../NoticeList";
@@ -34,7 +35,8 @@ class Home extends Component {
     visible: false,
     doctorInfo: {},
     isManager:false, //是否是数位会成员
-    managerInfo:[]
+    managerInfo:[],
+    loading:false
   };
   constructor(props) {
     super(props);
@@ -54,7 +56,7 @@ class Home extends Component {
       if (res.data.error === 0) {
       res.data.data.map((item) => {
        if( item.phone === userInfo.UserInfo.EMP_HANDPHONE){
-         console.log("是")
+         localStorage.setItem("isManager",JSON.stringify(true))
          this.setState({
            isManager:true
          })
@@ -86,8 +88,12 @@ class Home extends Component {
     }
   }
   componentDidMount = async () => {
+    this.setState({
+      loading:true
+    })
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     const currentItem = JSON.parse(localStorage.getItem("currentItem"));
+    const isManager = JSON.parse(localStorage.getItem("isManager"));
     if (currentItem) {
       this.setState({
         userInfo,
@@ -98,46 +104,25 @@ class Home extends Component {
         userInfo
       });
     }
-    await this.getManagerInfo(userInfo);
-     this.getDoctorInfo(userInfo);
+    if(!isManager){
+      await this.getManagerInfo(userInfo);
+    }else{
+      this.setState({
+        isManager:true
+      })
+    }
+    await this.getDoctorInfo(userInfo);
+     this.setState({
+       loading:false
+     })
   };
   getBase64 = (img, callback) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => callback(reader.result));
     reader.readAsDataURL(img);
   };
-  handleChange = info => {
-    if (info.file.status === "uploading") {
-      this.setState({ loading: true });
-      return;
-    }
-    if (info.file.status === "done") {
-      // Get this url from response in real world.
-      this.getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false
-        })
-      );
-    }
-  };
   //修改个人信息
   onEditInfo = async () => {
-    // const phoneNumber = this.state.userInfo.UserInfo.EMP_HANDPHONE;
-    // let res;
-    // try {
-    //   res = await http().getTable({
-    //     resid: doctorInfoId,
-    //     cmswhere: `phoneNumber = ${phoneNumber}`
-    //   });
-    //   if (res.data.error === 0) {
-    //     this.setState({
-    //       doctorInfo: res.data.data[0]
-    //     });
-    //   }
-    // } catch (error) {
-    //   message.error(error.message);
-    // }
     this.setState({
       visible: true
     });
@@ -256,8 +241,9 @@ class Home extends Component {
         </div>
       </React.Fragment>
     );
-    const { imageUrl, userInfo, currentItem,isManager } = this.state;
+    const { imageUrl, userInfo, currentItem,isManager ,loading} = this.state;
     return (
+      <Spin spinning={loading}>
       <div className="home">
         <Modal
           title="修改个人信息"
@@ -416,7 +402,7 @@ class Home extends Component {
             <div></div>
           </div>
         </div>
-      </div>
+      </div></Spin>
     );
   }
 }
