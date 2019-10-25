@@ -170,7 +170,6 @@ class Home extends Component {
   };
   //退出
   logout = () => {
-    console.log("logout", this.props);
     localStorage.removeItem("userInfo");
     localStorage.removeItem("currentItem");
     this.props.history.replace({
@@ -376,20 +375,6 @@ class Home extends Component {
             </div>
 
             <div className="home-right-top-user">
-              {/* <Upload
-                name="avatar"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                onChange={this.handleChange}
-              >
-                {imageUrl ? (
-                  <img src={imageUrl} alt="avatar" style={{ width: "100%" }} />
-                ) : (
-                  uploadButton
-                )}
-              </Upload> */}
               <Popover content={content} placement="bottom">
                 <div>
                   <Icon type="user" style={{ fontSize: "20px" }} />

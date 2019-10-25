@@ -358,9 +358,14 @@ class EditNotice extends React.Component {
       res = await http().getTable({
         resid: noticeId
       });
+      let data = [];
       if (res.data.error === 0) {
+        res.data.data.map((item, index) => {
+          item.number = index + 1;
+          data.push(item);
+        });
         this.setState({
-          data: res.data.data
+          data
         });
       }
     } catch (error) {

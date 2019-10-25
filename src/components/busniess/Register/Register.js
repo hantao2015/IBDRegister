@@ -46,14 +46,13 @@ class Register extends Component {
           telephone: form.getFieldValue("phone")
         });
       } catch (error) {
-        console.log(error);
+        message.error(error.message);
       }
     } else {
       message.info("请先输入手机号获取验证码");
     }
   };
   register = async () => {
-    http().clearCache();
     const { form } = this.props;
     let res;
     this.props.form.validateFieldsAndScroll(async (err, values) => {
@@ -77,7 +76,7 @@ class Register extends Component {
         occupationNumber: form.getFieldValue("postNumber"), //执业证号码
         hospital: form.getFieldValue("hospital"), // 医院
         doctor: form.getFieldValue("doctor"),
-        email:form.getFieldValue("email"),
+        email: form.getFieldValue("email"),
         post: form.getFieldValue("post") //职称
       };
       this.setState({
@@ -96,7 +95,6 @@ class Register extends Component {
           message.error(res.data.message);
         }
       } catch (error) {
-        console.log("res", error);
         message.error(error.message);
       }
       this.setState({

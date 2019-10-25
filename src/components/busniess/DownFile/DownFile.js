@@ -20,6 +20,12 @@ const columns = props => {
   const { onDown } = props;
   return [
     {
+      title: "序号",
+      dataIndex: "number",
+      key: "number",
+      width: 100
+    },
+    {
       title: "文件名",
       dataIndex: "fileName",
       key: "fileName",
@@ -84,8 +90,13 @@ class DownFile extends Component {
         resid: fileId
       });
       if (res.data.error == 0) {
+        let data = [];
+        res.data.data.map((item,index) => {
+          item.number = index+1;
+          data.push(item)
+        })
         this.setState({
-          data: res.data.data
+          data
         });
       }
     } catch (error) {

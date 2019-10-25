@@ -9152,6 +9152,13 @@ react-slick@~0.25.2:
     lodash.debounce "^4.0.8"
     resize-observer-polyfill "^1.5.0"
 
+react-to-print@^2.4.0:
+  version "2.5.0"
+  resolved "https://registry.npm.taobao.org/react-to-print/download/react-to-print-2.5.0.tgz#1aabdf18fd9b10b85311e16e8a7a81a441ee2a09"
+  integrity sha1-GqvfGP2bELhTEeFuinqBpEHuKgk=
+  dependencies:
+    prop-types "^15.7.2"
+
 react@^16.9.0:
   version "16.9.0"
   resolved "https://registry.npm.taobao.org/react/download/react-16.9.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact%2Fdownload%2Freact-16.9.0.tgz#40ba2f9af13bc1a38d75dbf2f4359a5185c4f7aa"

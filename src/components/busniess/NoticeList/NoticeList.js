@@ -46,11 +46,26 @@ class NoticeList extends Component {
       <div className="noticeList">
         <Spin spinning={showSpin}>
           <h2>最新通知</h2>
-       { currentNotice? <Alert
-            message={currentNotice && currentNotice.title}
+          {currentNotice ? (
+            currentNotice.isSynch !== 'Y'?
+            <Alert
+              message={currentNotice && currentNotice.title}
+              description={
+                <div>
+                  <span>{currentNotice && currentNotice.content}</span>
+                  <span className="noticeList-time">
+                    {currentNotice && currentNotice.publishTime}
+                  </span>
+                </div>
+              }
+              type="info"
+              showIcon
+            />:
+            <Alert
+            message= { `您发起的项目（${currentNotice && currentNotice.title}） 有人申请加入`}
             description={
               <div>
-                <span>{currentNotice && currentNotice.content}</span>
+                <span> {`加入人：${currentNotice && currentNotice.content}`}</span>
                 <span className="noticeList-time">
                   {currentNotice && currentNotice.publishTime}
                 </span>
@@ -58,7 +73,10 @@ class NoticeList extends Component {
             }
             type="info"
             showIcon
-          />: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+          />
+          ) : (
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          )}
           <div className="noticeList-line"> </div>
           <h3>历史通知</h3>
           {historyNotice.length > 0 ? (
@@ -75,7 +93,7 @@ class NoticeList extends Component {
                   <Panel
                     header={
                       <div>
-                        <span>{item.title}</span>
+                        <span>{item.isSynch !== 'Y' ?item.title:`您发起的项目（${item.title}） 有人申请加入` }</span>
                         <span className="noticeList-time">
                           {item.publishTime}
                         </span>
@@ -84,7 +102,7 @@ class NoticeList extends Component {
                     key={index}
                     style={customPanelStyle}
                   >
-                    <p>{item.content}</p>
+                    <p>{item.isSynch !== 'Y'?item.content:`加入人：${item.content}`}</p>
                   </Panel>
                 );
               })}

@@ -108,7 +108,7 @@ http.createApi("getTableNew", {
  */
 http.createApi("putOneImageObject", {
   method: "post",
-  url: "/api/AliyunOss/PutOneImageObject"
+  url: "/api/AliyunOss/PutFileImageObject"
 });
 
 export default http;

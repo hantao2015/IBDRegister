@@ -34,9 +34,7 @@ const joinProjectId = "622302753373";
 const { Meta } = Card;
 const { Step } = Steps;
 
-const customDot = (dot, { status, index }) => (
-  dot
-);
+const customDot = (dot, { status, index }) => dot;
 
 class ApplyProject extends Component {
   state = {
@@ -47,7 +45,8 @@ class ApplyProject extends Component {
     postilData: [],
     loading: false,
     isEdit: false,
-    doctorInfo: null
+    doctorInfo: null,
+    visible: true
   };
   componentDidMount = async () => {
     await this.getApplyData();
@@ -56,7 +55,12 @@ class ApplyProject extends Component {
       doctorInfo
     });
   };
-
+  componentWillReceiveProps = (nextProps) => {
+    if(nextProps.isUpdate !== this.props.isUpdate){
+     this.getApplyData();
+    }
+  }
+  
   //获取申请记录
   getApplyData = async () => {
     let res;
@@ -119,7 +123,6 @@ class ApplyProject extends Component {
     let obj = {};
     let study = values.study && values.study.toString();
     const { isEdit, record, doctorInfo } = this.state;
-    console.log("doctorInfo", doctorInfo);
     // const doctorInfo = JSON.parse(localStorage.getItem("doctorInfo"));
     // record.joinPersonID = doctorInfo.doctorId;
     if (type === 1) {
@@ -216,7 +219,6 @@ class ApplyProject extends Component {
     }
   };
   onApply = () => {
-    console.log("isEdit", this.state.isEdit);
     this.setState({
       page: "applyPage"
     });
@@ -275,6 +277,9 @@ class ApplyProject extends Component {
   };
   // //打印
   print = () => {
+    this.setState({
+      visible: false
+    });
     var printBox = document.getElementById("applyProjectForm");
     //拿到打印的区域的html内容
     var newContent = printBox.innerHTML;
@@ -298,16 +303,17 @@ class ApplyProject extends Component {
       page,
       record,
       postilData,
-      isEdit
+      isEdit,
+      visible
     } = this.state;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 }
+        // xs: { span: 24 },
+        // sm: { span: 8 }
       },
       wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 }
+        // xs: { span: 24 },
+        // sm: { span: 16 }
       }
     };
     const tailFormItemLayout = {
@@ -460,6 +466,7 @@ class ApplyProject extends Component {
                 >
                   <span>{record.staticMethod}</span>
                 </Form.Item>
+
                 <Form.Item label={<span>中期分析和提前终止的标准&nbsp;</span>}>
                   <span>{record.standard}</span>
                 </Form.Item>
@@ -473,7 +480,7 @@ class ApplyProject extends Component {
                   <span>{record.referenceData}</span>
                 </Form.Item>
               </div>
-              {record["621432069832"] ? (
+              {visible && record["621432069832"] ? (
                 <div className="applyProject-form-contain-notice">
                   <span>申请加入人</span>
                   {record["622302753373"] &&

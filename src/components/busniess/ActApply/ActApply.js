@@ -49,6 +49,7 @@ const uploadFile = (file, url) => {
     xhr.send(fd);
   });
 };
+//研究项目申请
 class ActApply extends Component {
   state = {
     imageUrl: "",
@@ -75,8 +76,9 @@ class ActApply extends Component {
       let data = [];
       res.data &&
         res.data.data &&
-        res.data.data.map(item => {
+        res.data.data.map((item,index) => {
           let studyType = item.studyType && item.studyType.split(",");
+          item.number = index + 1;
           item.studyType = studyType;
           data.push(item);
         });
@@ -234,7 +236,6 @@ class ActApply extends Component {
     reader.readAsDataURL(img);
   };
   handleChange = info => {
-    console.log("info", info);
     if (info.file.status === "uploading") {
       return;
     }

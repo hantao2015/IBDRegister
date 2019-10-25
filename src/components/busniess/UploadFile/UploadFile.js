@@ -20,6 +20,12 @@ const columns = props => {
   const { onDown, onDelete } = props;
   return [
     {
+      title: "序号",
+      dataIndex: "number",
+      key: "number",
+      width: 100
+    },
+    {
       title: "文件名",
       dataIndex: "fileName",
       key: "fileName",
@@ -112,8 +118,13 @@ class UploadFile extends Component {
         resid: fileId
       });
       if (res.data.error == 0) {
+        let data = [];
+        res.data.data.map((item,index) => {
+          item.number = index+1;
+          data.push(item)
+        })
         this.setState({
-          data: res.data.data
+          data
         });
       }
     } catch (error) {
@@ -166,13 +177,13 @@ class UploadFile extends Component {
     const file = fileInfo.file;
     const bucketname = "realsun";
     const type = "";
-    const fileUrl = `http://ivf.realsun.me:9001/api/AliyunOss/PutOneImageObject?bucketname=${encodeURIComponent(
+    const fileUrl = `http://ivf.realsun.me:9001/api/AliyunOss/PutFilesObject?bucketname=${encodeURIComponent(
       bucketname
     )}&srctype=${encodeURIComponent(type)}`;
     try {
       await uploadFile(file, fileUrl).then(fileUrl => {
         this.setState({
-          fileUrl
+          fileUrl:fileUrl[0]
         });
       });
     } catch (err) {
@@ -197,7 +208,8 @@ class UploadFile extends Component {
         message.success("操作成功");
       }
       this.setState({
-        visible: false
+        visible: false,
+        fileUrl:''
       });
       this.getData();
     } catch (error) {
@@ -220,7 +232,6 @@ class UploadFile extends Component {
     reader.readAsDataURL(img);
   };
   handleChange = info => {
-    console.log("info", info);
     if (info.file.status === "uploading") {
       return;
     }
@@ -292,7 +303,6 @@ class UploadFile extends Component {
             width={700}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
-            destroyOnClose={true}
             destroyOnClose
             footer={[
               <Button key="back" onClick={this.handleCancel}>

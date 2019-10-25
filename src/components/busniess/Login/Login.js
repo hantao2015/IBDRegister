@@ -100,7 +100,6 @@ class Login extends Component {
           telephone: form.getFieldValue("phone")
         });
       } catch (error) {
-        console.log(error);
       }
     } else {
       message.info("请先输入手机号获取验证码");

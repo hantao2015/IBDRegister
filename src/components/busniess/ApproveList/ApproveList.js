@@ -38,8 +38,13 @@ class ApproveList extends React.Component {
         resid: applyDataBaseId
       });
       if (res.data.error === 0) {
+        let data = [];
+        res.data.data.map((item, index) => {
+          item.number = index + 1;
+          data.push(item);
+        });
         this.setState({
-          data: res.data.data
+          data
         });
       }
     } catch (error) {}
@@ -59,7 +64,6 @@ class ApproveList extends React.Component {
     });
   };
   onPassOrReject = async type => {
-    http().clearCache();
     let res;
     let data;
     if (type === 1) {
@@ -233,9 +237,13 @@ class ApproveList extends React.Component {
         render: data => {
           return (
             <Tag
-            color={
-              data === "审核中" ? "blue" : data === "通过" ? "geekblue" : "green"
-            }
+              color={
+                data === "审核中"
+                  ? "blue"
+                  : data === "通过"
+                  ? "geekblue"
+                  : "green"
+              }
             >
               {data}
             </Tag>

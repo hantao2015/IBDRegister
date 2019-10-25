@@ -28,13 +28,13 @@ class ApproveProjectList extends React.Component {
   }
   onCheck = record => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    record['621432069832'].map((item) => {
+    record["621432069832"].map(item => {
       if (userInfo.UserInfo.EMP_HANDPHONE == item.phone) {
-              this.setState({
-                currentSuggest: item
-              });
-            }
-    })
+        this.setState({
+          currentSuggest: item
+        });
+      }
+    });
     this.setState({
       page: "checkPage",
       record
@@ -90,21 +90,20 @@ class ApproveProjectList extends React.Component {
     }
   };
   submitSuggest = async e => {
-    const { record ,} = this.state;
-    console.log("currentSuggest",this.state.currentSuggest)
+    const { record } = this.state;
     this.props.form.validateFieldsAndScroll(async (err, values) => {
       if (err) {
         return;
       }
       let currentSuggest;
-      if(this.state.currentSuggest){
-         currentSuggest =  JSON.parse(JSON.stringify(this.state.currentSuggest))
+      if (this.state.currentSuggest) {
+        currentSuggest = JSON.parse(JSON.stringify(this.state.currentSuggest));
         currentSuggest.suggest = values.suggest;
       }
       let res;
       let data = [
         {
-          ...currentSuggest,
+          ...currentSuggest
           // projectId: record.applyId
         }
       ];
@@ -137,10 +136,13 @@ class ApproveProjectList extends React.Component {
         subresid: suggestId
       });
       if (res.data.Error === 0) {
-        console.log("res.data.data", res.data.data);
-       
+        let data = [];
+        res.data.data.map((item, index) => {
+          item.number = index + 1;
+          data.push(item);
+        });
         this.setState({
-          data: res.data.data
+          data
         });
       }
     } catch (error) {}
@@ -305,31 +307,31 @@ class ApproveProjectList extends React.Component {
             <h1>CHASE-IBD专项课题申请表</h1>
             <h3>基本信息</h3>
             <Form.Item label={<span>课题名称&nbsp;</span>}>
-              <span>{record.doctor}</span>
+              <span>{record.task}</span>
             </Form.Item>
             <Form.Item label={<span>课题负责人&nbsp;</span>}>
-              <span>{record.hospital}</span>
+              <span>{record.taskPrincipal}</span>
             </Form.Item>
             <Form.Item label={<span>申请人&nbsp;</span>}>
-              <span>{record.post}</span>
+              <span>{record.doctor}</span>
             </Form.Item>
             <Form.Item label={<span>所属单位&nbsp;</span>}>
-              <span>{record.phoneNumber}</span>
+              <span>{record.hospital}</span>
             </Form.Item>
             <Form.Item label={<span>职称&nbsp;</span>}>
-              <span>{record.email}</span>
+              <span>{record.post}</span>
             </Form.Item>
             <Form.Item label={<span>联系电话&nbsp;</span>}>
-              <span>{record.email}</span>
+              <span>{record.phoneNumber}</span>
             </Form.Item>
             <Form.Item label={<span>E-mail&nbsp;</span>}>
               <span>{record.email}</span>
             </Form.Item>
             <Form.Item label={<span>拟定国内协作单位&nbsp;</span>}>
-              <span>{record.email}</span>
+              <span>{record.inlandUnit}</span>
             </Form.Item>
             <Form.Item label={<span>拟定国际协作单位&nbsp;</span>}>
-              <span>{record.email}</span>
+              <span>{record.foreignUnit}</span>
             </Form.Item>
             {/* <Form.Item label={<span>IBD治疗团队名单&nbsp;</span>}>
           <span>{record.teamPeople}</span>&nbsp;&nbsp;

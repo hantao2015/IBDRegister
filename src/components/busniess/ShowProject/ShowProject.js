@@ -36,7 +36,6 @@ class ShowProject extends React.Component {
     };
   }
   onCheck = record => {
-    console.log("record", record);
     this.setState({
       page: "checkPage",
       record
@@ -60,6 +59,7 @@ class ShowProject extends React.Component {
   onjoin = async record => {
     const doctorInfo = JSON.parse(localStorage.getItem("doctorInfo"));
     record.joinPersonID = doctorInfo.doctorId;
+    record.number = "";
     let res;
     try {
       res = await http().addRecords({
@@ -70,6 +70,7 @@ class ShowProject extends React.Component {
         message.success("提交成功");
       }
       await this.getData();
+      this.props.onUpdate();
     } catch (error) {
       message.error(error.message);
     }
@@ -110,7 +111,6 @@ class ShowProject extends React.Component {
         resid: applyProjectId
       });
       if (res.data.error === 0) {
-        console.log("res.data.data", res.data.data);
         let data = [];
         //筛选出 申请加入的记录。
         res.data.data.map(item => {
@@ -120,7 +120,9 @@ class ShowProject extends React.Component {
         });
         return data;
       }
-    } catch (error) {}
+    } catch (error) {
+      message.error(error.message);
+    }
   };
   getData = async () => {
     const doctorInfo = JSON.parse(localStorage.getItem("doctorInfo"));
@@ -134,20 +136,21 @@ class ShowProject extends React.Component {
       });
       if (res.data.error === 0) {
         let applyData = await this.getApplyData();
-
-        console.log("applyData", applyData);
         let data = [];
-        res.data.data.map(item => {
-          console.log("item", item);
+        res.data.data.map((item,index) => {
           //如果 没有申请加入记录或者 这条记录是自己创建的，就标记 isJoined为true
-          if (applyData.includes(item.applyId) || item.doctorId == doctorInfo.doctorId ) {
+          if (
+            applyData.includes(item.applyId) ||
+            item.doctorId == doctorInfo.doctorId
+          ) {
             item.isJoined = true;
+            item.number = index+1;
             data.push(item);
           } else {
+            item.number = index+1;
             data.push(item);
           }
         });
-        console.log("data",data)
         this.setState({
           data
         });
@@ -205,9 +208,13 @@ class ShowProject extends React.Component {
         render: data => {
           return (
             <Tag
-            color={
-              data === "进行中" ? "blue" : data === "已完成" ? "geekblue" : "green"
-            }
+              color={
+                data === "进行中"
+                  ? "blue"
+                  : data === "已完成"
+                  ? "geekblue"
+                  : "green"
+              }
             >
               {data}
             </Tag>
@@ -230,14 +237,15 @@ class ShowProject extends React.Component {
                 查看
               </a>
               <Divider type="vertical" />
-              {!record.isJoined ?
-              <a
-                onClick={() => {
-                  this.onjoin(record);
-                }}
-              >
-                申请加入
-              </a>:null}
+              {!record.isJoined ? (
+                <a
+                  onClick={() => {
+                    this.onjoin(record);
+                  }}
+                >
+                  申请加入
+                </a>
+              ) : null}
             </span>
           );
         }
