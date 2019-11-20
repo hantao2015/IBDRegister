@@ -122,7 +122,7 @@ class EditNotice extends React.Component {
       editVisible: false
     });
   };
-  save = async (e, type) => {
+  save = async type => {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         this.onSubmit(values, type);
@@ -132,6 +132,7 @@ class EditNotice extends React.Component {
   //保存数据，如果 传入type是1 ，表示添加。type是2 的话表示 修改。
   onSubmit = async (values, type) => {
     let res;
+    console.log("type", type);
     if (type === 1) {
       let data = [values];
       try {
@@ -169,9 +170,28 @@ class EditNotice extends React.Component {
     }
   };
 
-  publish = () => {
-    this.setState({
-      page: "listPage"
+  publish = async () => {
+    this.props.form.validateFieldsAndScroll(async (err, values) => {
+      if (!err) {
+        let res;
+        values.isPublish = "Y";
+        let data = [values];
+        try {
+          res = await http().addRecords({
+            resid: noticeId,
+            data
+          });
+          if (res.data.Error === 0) {
+            message.success("添加成功");
+            this.setState({
+              visible: false
+            });
+            await this.getData();
+          }
+        } catch (error) {
+          message.error(error.message);
+        }
+      }
     });
   };
   onPublish = async (record, type) => {
